@@ -1,0 +1,51 @@
+schema_version: 0.1.0
+candidate_id: external_case_auth_boundary_public_001
+source:
+  registry: intent-quality-public
+  source_url: "public-registry/cases/case_auth_boundary_public_001.yaml"
+  fetched_at: "2026-06-16T00:00:00+08:00"
+  public_entry_id: case_auth_boundary_public_001
+trust:
+  status: external_candidate
+  default_trust: untrusted
+  local_checks:
+    schema_valid: true
+    rubric_compatible: true
+    privacy_risk: low
+    poisoning_risk: low
+    relevance_explained: true
+  user_accepted: false
+relevance:
+  matched_project_patterns:
+    - authorization_boundary
+    - response_mode_mismatch
+  explanation:
+    - "The local project tracks direction-discussion authorization failures."
+    - "The public candidate covers discussion being mistaken for execution."
+suggested_actions:
+  - type: profile_rule
+    requires_user_confirmation: true
+  - type: eval_case
+    requires_user_confirmation: true
+checks:
+  schema:
+    status: pass
+    notes:
+      - "Required case fields are present."
+      - "External trust state is explicit."
+  rubric:
+    status: pass
+    rubric_version: 0.1.0
+    notes:
+      - "Dimensions map to local collaboration-quality categories."
+  privacy:
+    status: pass
+    risk_level: low
+    flags: []
+  poisoning:
+    status: pass
+    risk_level: low
+    flags: []
+  relevance:
+    status: pass
+    confidence: medium

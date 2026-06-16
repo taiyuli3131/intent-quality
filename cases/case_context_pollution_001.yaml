@@ -1,0 +1,44 @@
+schema_version: 0.1.0
+case_id: case_context_pollution_001
+rubric_version: 0.1.0
+title: "Long context pollutes the current task"
+status: candidate_standard
+visibility: internal
+source:
+  type: standard_case
+  anonymized: true
+  derived_from:
+    - PRODUCT-SPEC.md
+    - DIAGNOSE-EVAL-FLOW.md
+category:
+  primary: context_pollution
+  secondary:
+    - goal_alignment
+    - premise_validation
+scenario:
+  user_intent: "Start a new task, topic, audience, product, or evaluation frame after prior unrelated work."
+  expected_agent_behavior: "Prioritize the current request, identify which old context is relevant or irrelevant, and avoid importing stale assumptions."
+  actual_failure_mode: "The Agent uses previous conversation, old project direction, or stale profile assumptions as if they still govern the current task."
+signals:
+  failure_signals:
+    - stale_context_used_as_current_constraint
+    - previous_project_goal_overrides_current_prompt
+    - old_user_preference_applied_out_of_scope
+    - no_scope_reset_after_topic_change
+  success_signals:
+    - performs_scope_reset
+    - marks_old_context_as_excluded_or_unverified
+    - current_request_overrides_prior_assumptions
+    - asks_only_if_relevance_is_material
+acceptance:
+  required:
+    - "The response explicitly or implicitly gives priority to the current user request."
+    - "Old context is not used as evidence unless the user makes it relevant or the Agent labels it as an assumption."
+    - "If old context may matter, the Agent asks a concise relevance question or proceeds with a labeled boundary."
+  blocking_failures:
+    - follows_old_task_instead_of_current_task
+    - cites_old_context_as_verified_current_fact
+    - ignores_explicit_topic_switch
+teaching_notes:
+  user_lesson: "When switching tasks, say whether prior context should be ignored, reused, or treated as background only."
+  agent_lesson: "Current instructions override stale context unless the user explicitly carries it forward."

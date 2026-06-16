@@ -1,0 +1,24 @@
+schema_version: 0.1.0
+contribution_id: contrib_20260616_001
+generated_at: "2026-06-16T00:00:00+08:00"
+privacy_risk:
+  level: low
+  required_action: none
+detected_flags:
+  personal_identifiers: false
+  private_paths: false
+  repository_urls: false
+  secrets_or_tokens: false
+  proprietary_file_contents: false
+  long_verbatim_logs: false
+redactions:
+  - field: scenario.user_intent
+    action: generalized
+    reason: "Removed project-specific wording while preserving collaboration pattern."
+  - field: scenario.actual_failure_mode
+    action: shortened
+    reason: "Avoided full action logs."
+remaining_review_items:
+  - "User should confirm that the generalized scenario does not reveal private project context."
+submission_blocked: false
+requires_user_confirmation: true

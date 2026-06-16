@@ -1,0 +1,25 @@
+schema_version: 0.1.0
+contribution_id: contrib_20260616_001
+source_diagnosis: diag_20260616_001
+status: pending_user_review
+created_at: "2026-06-16T00:00:00+08:00"
+allowed_uses:
+  public_candidate_pool: true
+  eval_dataset: true
+  docs_example: false
+privacy:
+  anonymization_status: completed
+  privacy_risk: low
+  user_reviewed: false
+submission:
+  submitted: false
+  submitted_at: null
+  registry_id: null
+withdrawal:
+  withdrawn: false
+  withdrawn_at: null
+  reason: null
+message:
+  tone: lightweight
+  user_can_disable_prompt: true
+requires_user_confirmation: true

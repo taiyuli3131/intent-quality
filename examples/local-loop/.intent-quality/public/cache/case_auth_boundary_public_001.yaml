@@ -1,0 +1,5 @@
+schema_version: 0.1.0
+cached_at: "2026-06-16T00:00:00+08:00"
+source_url: "public-registry/cases/case_auth_boundary_public_001.yaml"
+cache_reason: "User preview or local matching policy fetched this candidate for checks."
+content_ref: "../../../cases/external-candidates/external_case_auth_boundary_public_001.yaml"

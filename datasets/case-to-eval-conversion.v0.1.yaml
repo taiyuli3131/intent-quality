@@ -1,0 +1,41 @@
+schema_version: 0.1.0
+conversion_id: case_to_eval_conversion_v0_1
+rubric_version: 0.1.0
+title: "Case to Eval Conversion Rules v0.1"
+visibility: internal
+status: candidate_standard
+purpose: "Convert collaboration failure cases into runnable eval samples without turning candidate standards into automatic product rules."
+conversion_rules:
+  - id: preserve_primary_risk
+    rule: "Each eval sample must keep one primary risk from the source case and include at most two secondary risks."
+  - id: make_expected_behavior_visible
+    rule: "Expected behavior must be observable in the Agent response through mode choice, assumptions, questions, refusal to mutate, or verification plan."
+  - id: encode_must_and_must_not
+    rule: "Each eval sample must include must and must_not lists derived from source success and failure signals."
+  - id: include_context_setup
+    rule: "Each eval sample must specify whether file-write tools, old context, user-stated premises, or business constraints are present."
+  - id: avoid_private_chain_of_thought
+    rule: "Scoring must not require private reasoning; use auditable decision labels and visible output."
+  - id: keep_internal_boundary
+    rule: "Eval samples can recommend candidate behavior but must not automatically modify product rules, profile, casebook, datasets, or rubrics."
+  - id: set_blocking_failures
+    rule: "Blocking failures from the source case must become required fail conditions in the eval pass criteria."
+field_mapping:
+  case_id: "cases[].source_case_id"
+  category.primary: "cases[].primary_risk"
+  category.secondary: "cases[].secondary_risks"
+  scenario.user_intent: "cases[].input.user_prompt"
+  scenario.expected_agent_behavior: "cases[].expected.must"
+  signals.failure_signals: "cases[].expected.must_not and cases[].scoring.blocking_failures"
+  signals.success_signals: "cases[].expected.must"
+  acceptance.required: "cases[].scoring.pass_criteria.required_observations"
+  acceptance.blocking_failures: "cases[].scoring.pass_criteria.blocking_failures"
+eval_design_requirements:
+  minimum_samples_for_v0_1: 3
+  recommended_samples_for_v0_1: 5
+  required_case_types:
+    - authorization_boundary
+    - context_pollution
+    - response_mode_mismatch
+    - premise_validation
+    - goal_preservation

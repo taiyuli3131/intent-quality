@@ -1,0 +1,37 @@
+schema_version: 0.1.0
+generated_at: "2026-06-16T00:00:00+08:00"
+suggestions:
+  - suggestion_id: sug_public_auth_boundary_20260616_001
+    source:
+      type: public_candidate
+      candidate_id: external_case_auth_boundary_public_001
+    suggestion_type: profile_rule
+    risk_level: medium
+    proposal:
+      title: "Confirm before file writes during direction discussions"
+      target: ".intent-quality/profile/project-profile.yaml"
+      change_summary: "Require explicit confirmation before file writes when the user asks to discuss direction, positioning, or planning."
+    rationale:
+      - "A checked public candidate matches a local recurring collaboration risk."
+      - "The proposed change affects future Agent behavior and must be reviewed."
+    status: pending
+    requires_user_confirmation: true
+    reversible: true
+    applied_at: null
+  - suggestion_id: sug_public_eval_case_20260616_001
+    source:
+      type: public_candidate
+      candidate_id: external_case_auth_boundary_public_001
+    suggestion_type: eval_case
+    risk_level: medium
+    proposal:
+      title: "Add authorization-boundary eval candidate"
+      target: ".intent-quality/datasets/external-candidates/auth-boundary-public-v0.1.yaml"
+      change_summary: "Create an eval candidate that checks whether an Agent asks before editing files during direction discussions."
+    rationale:
+      - "The sample passed local schema, rubric, privacy, and poisoning checks."
+      - "It remains an external candidate until the user accepts it."
+    status: pending
+    requires_user_confirmation: true
+    reversible: true
+    applied_at: null

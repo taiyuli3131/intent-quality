@@ -1,0 +1,15 @@
+schema_version: 0.1.0
+last_fetch_at: "2026-06-16T00:00:00+08:00"
+next_check_after: "2026-06-23T00:00:00+08:00"
+policy:
+  cadence: weekly
+  auto_download_index: true
+  auto_download_candidates: false
+  auto_generate_suggestions: true
+  auto_apply_rules: false
+result:
+  index_downloaded: true
+  entries_seen: 1
+  candidates_downloaded: 1
+  suggestions_generated: 1
+  local_assets_modified: false

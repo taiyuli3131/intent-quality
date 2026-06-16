@@ -1,0 +1,22 @@
+schema_version: 0.1.0
+profile_scope: project
+project_name: intent-quality
+preferences:
+  default_mode_for_direction_discussion: discussion_only
+  require_confirmation_before_file_write: true
+  contribution_prompt_enabled: true
+  public_sync_enabled: true
+public_sync:
+  cadence: weekly
+  auto_download_index: true
+  auto_download_candidates: false
+  auto_generate_suggestions: true
+  auto_apply_rules: false
+  auto_modify_profile: false
+  auto_add_eval_cases: false
+  auto_add_casebook_entries: false
+contribution_prompt:
+  last_shown_at: "2026-06-16T00:00:00+08:00"
+  disabled_at: null
+  disabled_reason: null
+  user_can_reenable: true
