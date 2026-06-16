@@ -4,6 +4,9 @@ generated_at: "2026-06-16T00:00:00+08:00"
 privacy_risk:
   level: low
   required_action: none
+authorization:
+  user_review_required: true
+  submission_authorized: false
 detected_flags:
   personal_identifiers: false
   private_paths: false

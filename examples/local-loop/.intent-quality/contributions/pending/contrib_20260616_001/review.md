@@ -37,6 +37,14 @@ Before submission, the user must confirm:
 I reviewed the anonymized candidate, privacy report, and allowed-use settings.
 ```
 
+Current authorization state:
+
+```yaml
+status: not_authorized_for_submission
+may_submit: false
+may_publish_docs_example: false
+```
+
 Available actions:
 
 ```text

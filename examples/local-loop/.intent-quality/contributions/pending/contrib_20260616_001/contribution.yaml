@@ -7,6 +7,14 @@ allowed_uses:
   public_candidate_pool: true
   eval_dataset: true
   docs_example: false
+user_authorization_scope:
+  status: not_authorized_for_submission
+  may_submit: false
+  may_publish_docs_example: false
+  may_retain_local_package: true
+  may_include_source_excerpts: false
+  allowed_use_notes:
+    - "Allowed uses are proposed defaults until the user confirms submission."
 privacy:
   anonymization_status: completed
   privacy_risk: low
@@ -16,6 +24,7 @@ submission:
   submitted_at: null
   registry_id: null
 withdrawal:
+  status: not_submitted
   withdrawn: false
   withdrawn_at: null
   reason: null

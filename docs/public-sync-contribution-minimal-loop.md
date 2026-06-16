@@ -216,12 +216,16 @@ High privacy risk blocks contribution submission until the package is edited and
 Public sync may generate pending suggestions only. A suggestion must include:
 
 - source candidate;
+- evidence;
 - why it matches this project;
 - proposed local action;
 - exact target path;
 - risk level;
+- impact scope;
 - reversible state;
+- rollback boundary;
 - confirmation requirement;
+- confirmation state;
 - preview instructions.
 
 Allowed pending suggestion types:
@@ -350,3 +354,14 @@ python tools/local_loop_check.py
 ```
 
 The checker validates the sample public index, external candidate, pending suggestions, and contribution package. It is read-only and must not apply suggestions, mutate profiles, add datasets, add casebook entries, or submit contributions.
+
+The minimal CLI commands are:
+
+```bash
+intent-quality public fetch
+intent-quality public suggest
+intent-quality contribute create
+intent-quality contribute review
+```
+
+These commands may only fetch the index, create external candidates, generate pending suggestions, create local pending contribution packages, or review those packages. They must not apply suggestions, accept public samples, submit contributions, withdraw contributions, or modify profiles, rules, accepted datasets, casebooks, rubrics, or contribution settings.

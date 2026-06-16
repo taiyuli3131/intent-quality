@@ -79,6 +79,16 @@ def check_public_index(root: Path) -> list[str]:
         errors.append(f"{path}: public index must default to untrusted")
     if data.get("sync_policy_hint", {}).get("auto_apply_rules") is not False:
         errors.append(f"{path}: auto_apply_rules must be false")
+    for policy in [
+        "auto_download_candidates",
+        "auto_modify_profile",
+        "auto_add_eval_cases",
+        "auto_add_casebook_entries",
+        "auto_override_rubrics",
+        "auto_change_contribution_settings",
+    ]:
+        if data.get("sync_policy_hint", {}).get(policy) is not False:
+            errors.append(f"{path}: {policy} must be false")
     for entry in data.get("entries", []):
         errors.extend(
             require(
@@ -119,9 +129,16 @@ def check_external_candidates(root: Path) -> list[str]:
             errors.append(f"{path}: candidate must default to untrusted")
         if trust.get("user_accepted") is not False:
             errors.append(f"{path}: user_accepted must start false")
-        for check in ["schema_valid", "rubric_compatible", "privacy_risk", "poisoning_risk"]:
+        for check in ["schema_valid", "rubric_compatible", "privacy_risk", "poisoning_risk", "relevance_explained"]:
             if check not in checks:
                 errors.append(f"{path}: missing local check {check}")
+        if checks.get("relevance_explained") is not True:
+            errors.append(f"{path}: relevance_explained must be true before suggestions")
+        if checks.get("poisoning_risk") == "high":
+            errors.append(f"{path}: high poisoning risk candidates must be quarantined")
+        for action in data.get("suggested_actions", []):
+            if action.get("requires_user_confirmation") is not True:
+                errors.append(f"{path}: suggested action must require user confirmation")
         for flag in privacy_flags(data):
             errors.append(f"{path}: privacy flag found: {flag}")
         for flag in poisoning_flags(data):
@@ -135,13 +152,42 @@ def check_suggestions(root: Path) -> list[str]:
     errors = require(data, ["schema_version", "suggestions"], str(path))
     for suggestion in data.get("suggestions", []):
         label = f"{path}:{suggestion.get('suggestion_id', '<unknown>')}"
-        errors.extend(require(suggestion, ["source", "suggestion_type", "proposal", "status"], label))
+        errors.extend(
+            require(
+                suggestion,
+                [
+                    "source",
+                    "suggestion_type",
+                    "risk_level",
+                    "proposal",
+                    "evidence",
+                    "impact_scope",
+                    "rollback_plan",
+                    "confirmation_state",
+                    "preview",
+                    "status",
+                ],
+                label,
+            )
+        )
         if suggestion.get("status") != "pending":
             errors.append(f"{label}: suggestion must start pending")
         if suggestion.get("requires_user_confirmation") is not True:
             errors.append(f"{label}: requires_user_confirmation must be true")
         if suggestion.get("applied_at") is not None:
             errors.append(f"{label}: applied_at must start null")
+        if not suggestion.get("evidence"):
+            errors.append(f"{label}: evidence must not be empty")
+        if not suggestion.get("impact_scope", {}).get("local_files"):
+            errors.append(f"{label}: impact_scope.local_files must name target files")
+        rollback = suggestion.get("rollback_plan", {})
+        if rollback.get("reversible") is not True or not rollback.get("boundary"):
+            errors.append(f"{label}: rollback_plan must be reversible and include a boundary")
+        confirmation = suggestion.get("confirmation_state", {})
+        if confirmation.get("status") != "awaiting_user_confirmation":
+            errors.append(f"{label}: confirmation_state.status must be awaiting_user_confirmation")
+        if confirmation.get("confirmed_at") is not None:
+            errors.append(f"{label}: confirmed_at must start null")
     return errors
 
 
@@ -159,11 +205,32 @@ def check_contributions(root: Path) -> list[str]:
             errors.append(f"{package}: contribution must not start submitted")
         if contribution.get("requires_user_confirmation") is not True:
             errors.append(f"{package}: contribution must require user confirmation")
+        authorization = contribution.get("user_authorization_scope", {})
+        if authorization.get("status") != "not_authorized_for_submission":
+            errors.append(f"{package}: contribution must start not_authorized_for_submission")
+        if authorization.get("may_submit") is not False:
+            errors.append(f"{package}: contribution package generation must not authorize submission")
+        if authorization.get("may_publish_docs_example") is not False:
+            errors.append(f"{package}: docs example permission must default false")
+        if contribution.get("allowed_uses", {}).get("docs_example") is not False:
+            errors.append(f"{package}: docs_example allowed use must default false")
+        withdrawal = contribution.get("withdrawal", {})
+        if withdrawal.get("status") not in {"not_submitted", "withdrawn"}:
+            errors.append(f"{package}: withdrawal.status must be explicit")
+        if privacy.get("authorization", {}).get("submission_authorized") is not False:
+            errors.append(f"{package}: privacy report must show submission_authorized false")
+        if privacy.get("requires_user_confirmation") is not True:
+            errors.append(f"{package}: privacy report must require user confirmation")
         if privacy.get("submission_blocked") is True and privacy.get("privacy_risk", {}).get("level") == "low":
             errors.append(f"{package}: low privacy risk should not block submission")
         for filename in ["anonymized-case.yaml", "privacy-report.yaml", "review.md"]:
             if not (package / filename).exists():
                 errors.append(f"{package}: missing {filename}")
+        anonymized = load_yaml(package / "anonymized-case.yaml")
+        for flag in privacy_flags(anonymized):
+            errors.append(f"{package / 'anonymized-case.yaml'}: privacy flag found: {flag}")
+        for flag in poisoning_flags(anonymized):
+            errors.append(f"{package / 'anonymized-case.yaml'}: poisoning flag found: {flag}")
     return errors
 
 

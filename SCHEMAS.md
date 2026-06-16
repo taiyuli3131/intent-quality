@@ -336,9 +336,40 @@ proposal:
   target: profile/project-profile.yaml
   change_summary: "Enable explicit confirmation gate for project direction discussions."
 
+rationale:
+  - "A checked public candidate matches a local recurring collaboration risk."
+
+evidence:
+  - source_type: external_candidate
+    reference: external_case_001
+    excerpt: "This external case covers discussion mistaken as execution."
+
+impact_scope:
+  local_files:
+    - profile/project-profile.yaml
+  behavior:
+    - "Future direction discussions would require explicit confirmation before file writes."
+  non_goals:
+    - "Does not edit the profile until the user applies the suggestion."
+    - "Does not add public samples to accepted datasets or casebooks."
+
+rollback_plan:
+  reversible: true
+  boundary: "Only the proposed target change is in scope for rollback."
+  required_snapshot: "Review the target file before applying."
+
+confirmation_state:
+  status: awaiting_user_confirmation
+  confirmed_by: null
+  confirmed_at: null
+
+preview:
+  instructions: "Review source, evidence, impact scope, and rollback plan before applying."
+
 status: pending
 requires_user_confirmation: true
 reversible: true
+applied_at: null
 ```
 
 ## 8. Contribution
@@ -356,14 +387,36 @@ allowed_uses:
   eval_dataset: true
   docs_example: false
 
+user_authorization_scope:
+  status: not_authorized_for_submission
+  may_submit: false
+  may_publish_docs_example: false
+  may_retain_local_package: true
+  may_include_source_excerpts: false
+  allowed_use_notes:
+    - "Allowed uses are proposed defaults until the user confirms submission."
+
 privacy:
   anonymization_status: completed
   privacy_risk: low
   user_reviewed: false
 
+submission:
+  submitted: false
+  submitted_at: null
+  registry_id: null
+
+withdrawal:
+  status: not_submitted
+  withdrawn: false
+  withdrawn_at: null
+  reason: null
+
 message:
   tone: lightweight
   user_can_disable_prompt: true
+
+requires_user_confirmation: true
 ```
 
 Minimal local contribution package:
@@ -386,6 +439,10 @@ generated_at: "2026-06-16T00:00:00+08:00"
 privacy_risk:
   level: low # low | medium | high
   required_action: none # none | redact_before_review | block_submission
+
+authorization:
+  user_review_required: true
+  submission_authorized: false
 
 detected_flags:
   personal_identifiers: false

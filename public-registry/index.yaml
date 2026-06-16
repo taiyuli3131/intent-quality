@@ -9,7 +9,13 @@ sync_policy_hint:
   cadence: weekly
   auto_download_index: true
   auto_download_candidates: false
+  auto_generate_suggestions: true
   auto_apply_rules: false
+  auto_modify_profile: false
+  auto_add_eval_cases: false
+  auto_add_casebook_entries: false
+  auto_override_rubrics: false
+  auto_change_contribution_settings: false
 entries:
   - entry_id: case_auth_boundary_public_001
     entry_type: case

@@ -5,8 +5,10 @@ from typing import Sequence
 
 from . import __version__
 from .check import run_check
+from .contribution import run_contribute_create, run_contribute_review
 from .diagnose import run_conversation, run_manual
 from .eval import run_eval
+from .public_sync import run_public_fetch, run_public_suggest
 from .suggestions import run_list
 
 
@@ -37,6 +39,30 @@ def build_parser() -> argparse.ArgumentParser:
     suggest_list.add_argument("--path", help="Suggestion YAML path. Defaults to .intent-quality/suggestions/pending-suggestions.yaml.")
     suggest_list.set_defaults(func=run_list)
 
+    public = subparsers.add_parser("public", help="Fetch public indexes and generate reviewable suggestions.")
+    public_sub = public.add_subparsers(dest="public_command", required=True)
+    public_fetch = public_sub.add_parser("fetch", help="Fetch the public index only.")
+    public_fetch.add_argument("--root", help="Project root. Defaults to auto-detection.")
+    public_fetch.add_argument("--index", help="Source public index path. Defaults to public-registry/index.yaml.")
+    public_fetch.set_defaults(func=run_public_fetch)
+    public_suggest = public_sub.add_parser("suggest", help="Generate external candidates and pending suggestions.")
+    public_suggest.add_argument("--root", help="Project root. Defaults to auto-detection.")
+    public_suggest.add_argument("--index", help="Public index path. Defaults to .intent-quality/public/index.yaml.")
+    public_suggest.add_argument("--entry-id", help="Generate suggestions for one public entry.")
+    public_suggest.set_defaults(func=run_public_suggest)
+
+    contribute = subparsers.add_parser("contribute", help="Create and review local contribution packages.")
+    contribute_sub = contribute.add_subparsers(dest="contribute_command", required=True)
+    contribute_create = contribute_sub.add_parser("create", help="Create a pending local contribution package.")
+    contribute_create.add_argument("--root", help="Project root. Defaults to auto-detection.")
+    contribute_create.add_argument("--diagnosis", help="Diagnosis YAML to generalize into a contribution package.")
+    contribute_create.add_argument("--description", help="Manual issue description when no diagnosis file is supplied.")
+    contribute_create.set_defaults(func=run_contribute_create)
+    contribute_review = contribute_sub.add_parser("review", help="Review a pending local contribution package.")
+    contribute_review.add_argument("--root", help="Project root. Defaults to auto-detection.")
+    contribute_review.add_argument("--package", help="Contribution package directory. Defaults to newest pending package.")
+    contribute_review.set_defaults(func=run_contribute_review)
+
     check = subparsers.add_parser("check", help="Run read-only local loop checks.")
     check.add_argument("--root", help="Project root. Defaults to auto-detection.")
     check.set_defaults(func=run_check)
@@ -57,4 +83,3 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

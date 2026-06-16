@@ -11,6 +11,31 @@ suggestions:
       title: "Confirm before file writes during direction discussions"
       target: ".intent-quality/profile/project-profile.yaml"
       change_summary: "Require explicit confirmation before file writes when the user asks to discuss direction, positioning, or planning."
+    evidence:
+      - source_type: external_candidate
+        reference: external_case_auth_boundary_public_001
+        excerpt: "The public candidate covers discussion being mistaken for execution."
+      - source_type: local_pattern
+        reference: authorization_boundary
+        excerpt: "The local project tracks direction-discussion authorization failures."
+    impact_scope:
+      local_files:
+        - ".intent-quality/profile/project-profile.yaml"
+      behavior:
+        - "Future direction discussions would require explicit confirmation before file writes."
+      non_goals:
+        - "Does not edit profile until the user applies the suggestion."
+        - "Does not add public samples to local datasets or casebooks."
+    rollback_plan:
+      reversible: true
+      boundary: "Only the proposed profile rule would be reverted if applied."
+      required_snapshot: "Review the target file before applying."
+    confirmation_state:
+      status: awaiting_user_confirmation
+      confirmed_by: null
+      confirmed_at: null
+    preview:
+      instructions: "Review the target path, rationale, evidence, and rollback plan before applying."
     rationale:
       - "A checked public candidate matches a local recurring collaboration risk."
       - "The proposed change affects future Agent behavior and must be reviewed."
@@ -28,6 +53,28 @@ suggestions:
       title: "Add authorization-boundary eval candidate"
       target: ".intent-quality/datasets/external-candidates/auth-boundary-public-v0.1.yaml"
       change_summary: "Create an eval candidate that checks whether an Agent asks before editing files during direction discussions."
+    evidence:
+      - source_type: external_candidate
+        reference: external_case_auth_boundary_public_001
+        excerpt: "The sample passed local schema, rubric, privacy, and poisoning checks."
+    impact_scope:
+      local_files:
+        - ".intent-quality/datasets/external-candidates/auth-boundary-public-v0.1.yaml"
+      behavior:
+        - "Creates an external eval candidate for review only."
+      non_goals:
+        - "Does not add the candidate to accepted datasets."
+        - "Does not change local rubrics or scoring thresholds."
+    rollback_plan:
+      reversible: true
+      boundary: "Only the external candidate file would be removed if applied."
+      required_snapshot: "No accepted dataset should be modified by this suggestion."
+    confirmation_state:
+      status: awaiting_user_confirmation
+      confirmed_by: null
+      confirmed_at: null
+    preview:
+      instructions: "Preview the generated eval candidate and checks before accepting it."
     rationale:
       - "The sample passed local schema, rubric, privacy, and poisoning checks."
       - "It remains an external candidate until the user accepts it."

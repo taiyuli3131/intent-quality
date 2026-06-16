@@ -96,17 +96,25 @@ intent-quality diagnose --manual
 intent-quality diagnose --conversation conversation.md
 intent-quality eval datasets/collaboration-quality.v0.1.yaml --response response.md
 intent-quality suggest list
+intent-quality public fetch
+intent-quality public suggest
+intent-quality contribute create --diagnosis .intent-quality/diagnoses/diag_YYYYMMDD_NNN.yaml
+intent-quality contribute review
 intent-quality check
 ```
 
 For local development without installing the package, use:
 
 ```bash
-python -m intent_quality.cli check
 python -m intent_quality.cli eval datasets/collaboration-quality.v0.1.yaml --response examples/eval-response-auth-boundary-pass.md --eval-id eval_auth_boundary_direction_001
+python -m intent_quality.cli public fetch
+python -m intent_quality.cli public suggest
+python -m intent_quality.cli contribute create --description "Discussion was treated as file update authorization."
+python -m intent_quality.cli contribute review
+python -m intent_quality.cli check
 ```
 
-The MVP keeps mutating behavior narrow. `diagnose` writes only diagnosis reports under `.intent-quality/diagnoses/`. `check`, `eval`, and `suggest list` are read-only. Suggestions are listed for review only; no profile, rules, dataset, casebook, or contribution changes are applied automatically.
+The MVP keeps mutating behavior narrow. `diagnose` writes only diagnosis reports under `.intent-quality/diagnoses/`. `public fetch` writes only the public index and fetch metadata. `public suggest` writes external candidates and pending suggestions only. `contribute create` writes a local pending contribution package only. `check`, `eval`, `suggest list`, and `contribute review` are read-only. No profile, rules, accepted dataset, casebook, rubric, public upload, or contribution state change is applied automatically.
 
 ## Diagnose Versus Eval
 
