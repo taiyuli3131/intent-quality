@@ -6,6 +6,52 @@ It helps you diagnose, test, and improve how an Agent understands your goal, res
 
 This project is not a hosted eval platform, a prompt collection, or a generic answer grader. It is a practical quality layer for people who use Agents to read projects, edit files, run commands, and carry long-running work.
 
+## Current Status
+
+`intent-quality` is in an open-source foundation stage. The core local loop is usable for project-local diagnosis, fixtures, regression checks, playbook learning, public candidate gating, and pending profile-memory suggestions.
+
+The current package version is `0.3.0`.
+
+## Install
+
+From a local checkout:
+
+```bash
+python -m pip install -e .
+```
+
+For local development without installation, use:
+
+```bash
+python -m intent_quality.cli --help
+```
+
+## Quick Start
+
+Run the read-only project check:
+
+```bash
+python -m intent_quality.cli check
+```
+
+Run a focused eval sample:
+
+```bash
+python -m intent_quality.cli eval datasets/collaboration-quality.v0.1.yaml --response examples/eval-response-auth-boundary-pass.md --eval-id eval_auth_boundary_direction_001
+```
+
+Create a manual diagnosis report:
+
+```bash
+python -m intent_quality.cli diagnose --manual --description "The user wanted to discuss direction, but the Agent edited files."
+```
+
+Verify Python files compile:
+
+```bash
+python -m compileall intent_quality
+```
+
 ## Why It Exists
 
 Agent collaboration often fails before the code or prose is wrong.
@@ -88,6 +134,28 @@ Run the read-only sample check with:
 ```bash
 python tools/local_loop_check.py
 ```
+
+## Safety Model
+
+`intent-quality` is local-first and confirmation-gated.
+
+By default:
+
+- diagnosis writes only diagnosis reports;
+- public sync writes only external candidates and pending suggestions;
+- contribution creation writes only local pending contribution packages;
+- profile memory is represented as pending suggestions only;
+- `check`, `eval`, `suggest list`, and contribution review are read-only.
+
+The project must not automatically:
+
+- upload local data;
+- submit contribution packages;
+- accept public samples;
+- apply profile memory;
+- mutate rules, datasets, casebooks, rubrics, contribution settings, or accepted local assets.
+
+See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md) for open-source safety boundaries.
 
 ## CLI MVP
 
@@ -241,3 +309,20 @@ Current local playbook pages:
 - [DIAGNOSE-EVAL-FLOW.md](DIAGNOSE-EVAL-FLOW.md): operational flow.
 
 Historical notes are kept as context, but the active product shape is defined by the files above.
+
+## Contributing
+
+Contributions are welcome when they preserve the local-first safety model.
+
+Before proposing changes, run:
+
+```bash
+python -m intent_quality.cli check
+python -m compileall intent_quality
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

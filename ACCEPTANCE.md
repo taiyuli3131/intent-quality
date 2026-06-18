@@ -223,3 +223,22 @@ Acceptance notes:
 - `intent-quality check` validates profile memory fixtures and remains read-only.
 - `python -m compileall intent_quality` passes.
 - The baseline does not modify profiles, rules, datasets, casebooks, rubrics, contributions, candidates, suggestions, or submissions during checks.
+
+## Open Source Foundation Prep
+
+Status: `open source foundation prep completed`
+
+Date: 2026-06-18
+
+Scope: open-source readiness files and metadata only; no core product feature expansion.
+
+Acceptance notes:
+
+- MIT license, contribution guide, security policy, privacy policy, and open-source foundation checklist are present.
+- README includes install, quick start, verification commands, safety model, contribution guidance, and license pointer.
+- `pyproject.toml` includes version `0.3.0`, MIT license metadata, contributors, keywords, and classifiers.
+- `.intent-quality/` remains ignored as local runtime state.
+- `python -m intent_quality.cli check` passes and remains read-only.
+- `python -m compileall intent_quality` passes.
+- `python -m intent_quality.cli --help` works.
+- Sensitive-string scan found only policy text and deliberate unsafe/privacy fixtures, not real local credentials or private workspace paths.
