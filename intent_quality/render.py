@@ -10,7 +10,9 @@ def write_text(path: Path, text: str) -> None:
 
 def render_diagnosis_markdown(data: dict[str, Any]) -> str:
     findings = data.get("findings", [])
-    missing = data.get("missing_information", [])
+    questions = data.get("completion_questions", [])
+    premises = data.get("premises", [])
+    auth_scope = data.get("authorization_scope", {})
     concepts = data.get("learning_feedback", {}).get("concepts", [])
     lines = [
         f"# Diagnosis {data['diagnosis_id']}",
@@ -26,10 +28,50 @@ def render_diagnosis_markdown(data: dict[str, Any]) -> str:
         f"- Expected mode: `{data['interaction_state']['expected_mode']}`",
         f"- Actual mode: `{data['interaction_state']['actual_mode']}`",
         f"- Mismatch: `{str(data['interaction_state']['mismatch']).lower()}`",
+        f"- Analysis: {data['interaction_state'].get('analysis', 'No mode analysis available.')}",
         "",
-        "## Findings",
+        "## Authorization Scope",
         "",
+        f"- Boundary status: `{auth_scope.get('boundary_status', 'unknown')}`",
+        f"- Expected scope: `{auth_scope.get('expected_scope', 'unknown')}`",
+        f"- Actual scope: `{auth_scope.get('actual_scope', 'unknown')}`",
+        "",
+        "| Target | Status | May Modify | Requires Confirmation |",
+        "| --- | --- | --- | --- |",
     ]
+    for target, detail in auth_scope.get("targets", {}).items():
+        lines.append(
+            f"| {target} | `{detail.get('status', 'unknown')}` | "
+            f"`{str(detail.get('may_modify', False)).lower()}` | "
+            f"`{str(detail.get('requires_user_confirmation', True)).lower()}` |"
+        )
+    if auth_scope.get("notes"):
+        lines.extend(["", "Notes:"])
+        lines.extend(f"- {note}" for note in auth_scope.get("notes", []))
+
+    lines.extend(
+        [
+            "",
+            "## Premises",
+            "",
+            "| ID | Status | Confidence | Statement | Evidence |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+    )
+    for premise in premises:
+        evidence = ", ".join(premise.get("evidence", [])) or "none"
+        lines.append(
+            f"| {premise.get('id', '')} | `{premise.get('status', 'unknown')}` | "
+            f"`{premise.get('confidence', 'unknown')}` | {premise.get('statement', '')} | {evidence} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Findings",
+            "",
+        ]
+    )
     if findings:
         for finding in findings:
             lines.extend(
@@ -38,6 +80,7 @@ def render_diagnosis_markdown(data: dict[str, Any]) -> str:
                     "",
                     f"- Severity: `{finding['severity']}`",
                     f"- Confidence: `{finding['confidence']}`",
+                    f"- Premise status: `{finding.get('premise_status', 'unknown')}`",
                     f"- Conclusion: {finding['conclusion']}",
                     f"- Recommendation: {finding['recommendation']}",
                     "",
@@ -45,14 +88,26 @@ def render_diagnosis_markdown(data: dict[str, Any]) -> str:
                 ]
             )
             for evidence in finding.get("evidence", []):
-                lines.append(f"- `{evidence['source_type']}`: {evidence['excerpt']}")
+                lines.append(
+                    f"- `{evidence.get('id', '')}` "
+                    f"`{evidence.get('source_type', 'unknown')}`/"
+                    f"`{evidence.get('evidence_type', 'unknown')}` "
+                    f"premise `{evidence.get('premise_status', 'unknown')}`: "
+                    f"{evidence.get('excerpt', '')}"
+                )
+                if evidence.get("supports"):
+                    lines.append(f"  - Supports: {evidence['supports']}")
             lines.append("")
     else:
         lines.extend(["No material findings were detected from the available input.", ""])
 
-    lines.extend(["## Missing Information", ""])
-    if missing:
-        lines.extend(f"- {item}" for item in missing)
+    lines.extend(["## Targeted Completion Questions", ""])
+    if questions:
+        for item in questions:
+            targets = ", ".join(item.get("targets", [])) or "general"
+            lines.append(f"- `{item.get('id', '')}` {item.get('question', '')}")
+            lines.append(f"  - Targets: {targets}")
+            lines.append(f"  - Why it matters: {item.get('why_it_matters', '')}")
     else:
         lines.append("- None identified.")
 
@@ -61,15 +116,36 @@ def render_diagnosis_markdown(data: dict[str, Any]) -> str:
             "",
             "## Learning Feedback",
             "",
-            f"- Concepts: {', '.join(concepts) or 'none'}",
             f"- User tip: {data.get('learning_feedback', {}).get('user_tip', 'No specific tip generated.')}",
+            f"- Agent tip: {data.get('learning_feedback', {}).get('agent_tip', 'No specific tip generated.')}",
+            "",
+            "| Concept | Why It Matters | Playbook |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for item in concepts:
+        if isinstance(item, dict):
+            lines.append(
+                f"| `{item.get('concept', '')}` | {item.get('why_it_matters', '')} | {item.get('playbook', '')} |"
+            )
+        else:
+            lines.append(f"| `{item}` | See playbook. | |")
+
+    lines.extend(
+        [
             "",
             "## Generated Candidates",
             "",
+            "| Type | Artifact | Status | Auto Apply | Writes Local Asset | Requires Confirmation |",
+            "| --- | --- | --- | --- | --- | --- |",
         ]
     )
-    for key, value in data.get("generated_candidates", {}).items():
-        lines.append(f"- {key}: `{value}`")
+    for candidate in data.get("generated_candidates", []):
+        lines.append(
+            f"| {candidate.get('type', '')} | `{candidate.get('artifact_type', '')}` | "
+            f"`{candidate.get('status', '')}` | `{str(candidate.get('auto_apply', False)).lower()}` | "
+            f"`{str(candidate.get('writes_local_asset', False)).lower()}` | "
+            f"`{str(candidate.get('requires_user_confirmation', True)).lower()}` |"
+        )
     lines.append("")
     return "\n".join(lines)
-

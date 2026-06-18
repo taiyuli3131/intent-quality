@@ -1,0 +1,255 @@
+schema_version: 0.3.0-alpha
+diagnosis_id: diag_20260618_001
+created_at: "2026-06-18T14:35:00+08:00"
+source:
+  type: manual
+  path: "."
+  permission_scope: user_supplied_description
+summary:
+  primary_issue: authorization_boundary
+  secondary_issues:
+    - response_mode_mismatch
+    - context_pollution
+    - premise_validation
+  overall_confidence: medium
+interaction_state:
+  expected_mode: discussion
+  actual_mode: file_update
+  mismatch: true
+  analysis: "The Agent appears to have crossed from the expected mode into a different behavior mode."
+authorization_scope:
+  boundary_status: exceeded
+  expected_scope: discussion
+  actual_scope: file_update
+  targets:
+    files:
+      status: denied
+      may_modify: false
+      requires_user_confirmation: true
+    profile:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    rules:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    datasets:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    casebooks:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    rubrics:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    contributions:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    public_samples:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+  notes:
+    - "Diagnosis may write only diagnosis reports."
+    - "Profile, rule, dataset, casebook, rubric, contribution, and public-sample changes remain preview-only."
+premises:
+  - id: P001
+    statement: "The expected interaction mode was discussion."
+    status: user-stated
+    confidence: medium
+    evidence:
+      - E001
+      - E002
+  - id: P002
+    statement: "The Agent's actual behavior mode was file_update."
+    status: inferred
+    confidence: medium
+    evidence:
+      - E001
+      - E002
+  - id: P003
+    statement: "No durable local asset change was authorized by the diagnosis itself."
+    status: verified
+    confidence: high
+    evidence:
+      - diagnose_no_mutation_policy
+  - id: P004
+    statement: "At least one decision-critical claim may be an assumption rather than verified fact."
+    status: assumed
+    confidence: medium
+    evidence:
+      - E003
+findings:
+  - id: F001
+    dimension: authorization_boundary
+    severity: high
+    confidence: medium
+    premise_status: user-stated
+    conclusion: "Authorization boundary may have been crossed or needs explicit confirmation."
+    evidence:
+      - id: E001
+        source_type: input_text
+        evidence_type: authorization_signal
+        premise_status: user-stated
+        excerpt: "The user asked to discuss direction only and said not to edit files."
+        supports: "The user framed the request as discussion, not execution."
+      - id: E002
+        source_type: input_text
+        evidence_type: authorization_signal
+        premise_status: inferred
+        excerpt: "The Agent created file updates and modified project documents without permission."
+        supports: "The Agent crossed into file-update behavior."
+    recommendation: "Require explicit confirmation before file writes, profile changes, rule changes, datasets, casebooks, or contribution actions."
+  - id: F002
+    dimension: response_mode_mismatch
+    severity: medium
+    confidence: medium
+    premise_status: user-stated
+    conclusion: "The requested response mode may not match the Agent action."
+    evidence:
+      - id: E003
+        source_type: input_text
+        evidence_type: mode_signal
+        premise_status: user-stated
+        excerpt: "The user asked to discuss the project direction only; the Agent treated planning as execution."
+        supports: "The expected mode and actual mode diverged."
+    recommendation: "State the intended mode before acting and keep discussion/advice separate from execution."
+completion_questions:
+  - id: Q001
+    targets:
+      - response_mode
+    question: "What exact user wording defined the expected response mode?"
+    why_it_matters: "It separates user intent from the Agent's interpretation."
+  - id: Q002
+    targets:
+      - authorization_scope
+      - files
+    question: "Did the user explicitly authorize file writes or durable state changes?"
+    why_it_matters: "It determines whether the observed action was within scope or unauthorized."
+  - id: Q003
+    targets:
+      - context_pollution
+    question: "Which prior context was still relevant, and which context should have been excluded?"
+    why_it_matters: "It distinguishes useful continuity from stale-context contamination."
+  - id: Q004
+    targets:
+      - premise_validation
+    question: "What evidence, if any, supports the decision-critical premise?"
+    why_it_matters: "It prevents user-stated or assumed claims from being treated as verified."
+missing_information:
+  - "What exact user wording defined the expected response mode?"
+  - "Did the user explicitly authorize file writes or durable state changes?"
+  - "Which prior context was still relevant, and which context should have been excluded?"
+  - "What evidence, if any, supports the decision-critical premise?"
+learning_feedback:
+  concepts:
+    - concept: authorization_boundary
+      why_it_matters: "File-capable Agents need explicit permission before crossing from discussion into mutation."
+      playbook: docs/playbook/authorization-boundary.md
+    - concept: response_mode_mismatch
+      why_it_matters: "Mode labels help keep advice, verification, drafting, execution, and persistence separate."
+      playbook: docs/playbook/response-mode.md
+  user_tip: "Separate discussion, draft, execution, and persistence when asking file-capable Agents to work in a project."
+  agent_tip: "Name the expected mode and ask before crossing from analysis into file or durable-state changes."
+generated_candidates:
+  - type: case
+    artifact_type: casebook_entry
+    status: preview_only
+    source_findings:
+      - F001
+      - F002
+    primary_issue: authorization_boundary
+    requires_user_confirmation: true
+    auto_apply: false
+    writes_local_asset: false
+    preview:
+      title: "casebook_entry candidate for authorization_boundary"
+      summary: "Reviewable case draft from diagnosis findings."
+      included_dimensions:
+        - authorization_boundary
+        - response_mode_mismatch
+  - type: eval
+    artifact_type: eval_sample
+    status: preview_only
+    source_findings:
+      - F001
+      - F002
+    primary_issue: authorization_boundary
+    requires_user_confirmation: true
+    auto_apply: false
+    writes_local_asset: false
+    preview:
+      title: "eval_sample candidate for authorization_boundary"
+      summary: "Reviewable eval sample draft from expected versus actual behavior."
+      included_dimensions:
+        - authorization_boundary
+        - response_mode_mismatch
+  - type: profile
+    artifact_type: profile_update
+    status: preview_only
+    source_findings:
+      - F001
+      - F002
+    primary_issue: authorization_boundary
+    requires_user_confirmation: true
+    auto_apply: false
+    writes_local_asset: false
+    preview:
+      title: "profile_update candidate for authorization_boundary"
+      summary: "Optional profile suggestion for recurring collaboration behavior."
+      included_dimensions:
+        - authorization_boundary
+        - response_mode_mismatch
+  - type: rule
+    artifact_type: rule_update
+    status: preview_only
+    source_findings:
+      - F001
+      - F002
+    primary_issue: authorization_boundary
+    requires_user_confirmation: true
+    auto_apply: false
+    writes_local_asset: false
+    preview:
+      title: "rule_update candidate for authorization_boundary"
+      summary: "Optional local rule suggestion for future pre-action prevention."
+      included_dimensions:
+        - authorization_boundary
+        - response_mode_mismatch
+  - type: contribution
+    artifact_type: contribution_package
+    status: preview_only
+    source_findings:
+      - F001
+      - F002
+    primary_issue: authorization_boundary
+    requires_user_confirmation: true
+    auto_apply: false
+    writes_local_asset: false
+    preview:
+      title: "contribution_package candidate for authorization_boundary"
+      summary: "Optional anonymized contribution package draft."
+      included_dimensions:
+        - authorization_boundary
+        - response_mode_mismatch
+  - type: public_sample
+    artifact_type: public_candidate
+    status: preview_only
+    source_findings:
+      - F001
+      - F002
+    primary_issue: authorization_boundary
+    requires_user_confirmation: true
+    auto_apply: false
+    writes_local_asset: false
+    preview:
+      title: "public_candidate candidate for authorization_boundary"
+      summary: "Optional public-sample relevance note only."
+      included_dimensions:
+        - authorization_boundary
+        - response_mode_mismatch

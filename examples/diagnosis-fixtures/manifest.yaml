@@ -1,0 +1,12 @@
+schema_version: 0.3.0-alpha
+fixtures:
+  - input: manual-auth-boundary.md
+    source_type: manual
+    expected_primary_issue: authorization_boundary
+    expected_mode: discussion
+    actual_mode: file_update
+  - input: conversation-premise-mode.md
+    source_type: conversation
+    expected_primary_issue: response_mode_mismatch
+    expected_mode: verification
+    actual_mode: discussion

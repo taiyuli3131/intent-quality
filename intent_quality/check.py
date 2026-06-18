@@ -16,6 +16,8 @@ from .schemas import (
     validate_suggestions_file,
 )
 from .eval import evaluate_dataset
+from .diagnose import build_diagnosis
+from .render import render_diagnosis_markdown
 
 
 EXPECTED_FIXTURES = {
@@ -50,6 +52,7 @@ def run_check(args: Any) -> int:
     errors.extend(check_local_loop_assets(root))
     errors.extend(check_public_candidate_fixtures(root))
     errors.extend(check_eval_response_fixtures(root))
+    errors.extend(check_diagnosis_quality_fixtures(root))
 
     if errors:
         print("local loop checks failed:")
@@ -58,7 +61,7 @@ def run_check(args: Any) -> int:
         return 1
 
     print("local loop checks passed")
-    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures")
+    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures, diagnosis quality fixtures")
     print("mode: read-only; no rules, profiles, datasets, casebooks, candidates, suggestions, or submissions were modified")
     return 0
 
@@ -188,6 +191,147 @@ def check_eval_response_fixtures(root: Path) -> list[str]:
             errors.append(f"{path}: pass fixture produced blocking failures")
         if expected_status != "pass" and not results[0].get("failure_codes"):
             errors.append(f"{path}: failing fixture produced no failure codes")
+    return errors
+
+
+def check_diagnosis_quality_fixtures(root: Path) -> list[str]:
+    fixture_dir = root / "examples" / "diagnosis-fixtures"
+    manifest_path = fixture_dir / "manifest.yaml"
+    if not manifest_path.exists():
+        return [f"{manifest_path}: missing diagnosis quality fixture manifest"]
+
+    manifest = load_yaml(manifest_path)
+    errors: list[str] = []
+    before = protected_snapshot(root)
+    for item in manifest.get("fixtures", []):
+        path = fixture_dir / item.get("input", "")
+        if not path.exists():
+            errors.append(f"{path}: missing diagnosis fixture input")
+            continue
+        text = path.read_text(encoding="utf-8")
+        source_type = item.get("source_type", "manual")
+        diagnosis = build_diagnosis(text, f"fixture_{path.stem}", source_type, path, root)
+        errors.extend(validate_diagnosis_quality(diagnosis, str(path), item))
+        rendered = render_diagnosis_markdown(diagnosis)
+        for required in [
+            "## Authorization Scope",
+            "## Premises",
+            "## Targeted Completion Questions",
+            "## Generated Candidates",
+        ]:
+            if required not in rendered:
+                errors.append(f"{path}: rendered report missing section {required}")
+
+    after = protected_snapshot(root)
+    if before != after:
+        errors.append("diagnosis fixture check modified protected local assets")
+    example_yaml = root / "examples" / "diagnose-report.yaml"
+    if not example_yaml.exists():
+        errors.append(f"{example_yaml}: missing YAML diagnosis report example")
+    else:
+        errors.extend(
+            validate_diagnosis_quality(
+                load_yaml(example_yaml),
+                str(example_yaml),
+                {
+                    "expected_primary_issue": "authorization_boundary",
+                    "expected_mode": "discussion",
+                    "actual_mode": "file_update",
+                },
+            )
+        )
+    return errors
+
+
+def protected_snapshot(root: Path) -> dict[str, str]:
+    protected = [
+        root / ".intent-quality" / "profile",
+        root / ".intent-quality" / "rules",
+        root / ".intent-quality" / "datasets",
+        root / ".intent-quality" / "cases",
+        root / ".intent-quality" / "rubrics",
+        root / ".intent-quality" / "contributions",
+        root / ".intent-quality" / "public",
+        root / ".intent-quality" / "suggestions",
+        root / "examples" / "local-loop" / ".intent-quality" / "profile",
+        root / "examples" / "local-loop" / ".intent-quality" / "cases",
+        root / "examples" / "local-loop" / ".intent-quality" / "contributions",
+        root / "examples" / "local-loop" / ".intent-quality" / "public",
+        root / "examples" / "local-loop" / ".intent-quality" / "suggestions",
+        root / "datasets",
+        root / "cases",
+        root / "rubrics",
+        root / "public-registry",
+    ]
+    snapshot: dict[str, str] = {}
+    for base in protected:
+        if not base.exists():
+            snapshot[str(base)] = "<missing>"
+            continue
+        files = sorted(path for path in base.rglob("*") if path.is_file())
+        digest = hashlib.sha256()
+        for path in files:
+            digest.update(str(path.relative_to(root)).encode("utf-8"))
+            digest.update(b"\0")
+            digest.update(path.read_bytes())
+            digest.update(b"\0")
+        snapshot[str(base)] = digest.hexdigest()
+    return snapshot
+
+
+def validate_diagnosis_quality(data: dict[str, Any], label: str, expected: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    if data.get("schema_version") != "0.3.0-alpha":
+        errors.append(f"{label}: schema_version must be 0.3.0-alpha")
+    primary = expected.get("expected_primary_issue")
+    if primary and data.get("summary", {}).get("primary_issue") != primary:
+        errors.append(f"{label}: expected primary issue {primary}, got {data.get('summary', {}).get('primary_issue')}")
+    interaction = data.get("interaction_state", {})
+    if "expected_mode" in expected and interaction.get("expected_mode") != expected["expected_mode"]:
+        errors.append(f"{label}: expected mode {expected['expected_mode']}, got {interaction.get('expected_mode')}")
+    if "actual_mode" in expected and interaction.get("actual_mode") != expected["actual_mode"]:
+        errors.append(f"{label}: actual mode {expected['actual_mode']}, got {interaction.get('actual_mode')}")
+    if not data.get("authorization_scope", {}).get("targets"):
+        errors.append(f"{label}: missing authorization-scope targets")
+    protected_targets = data.get("authorization_scope", {}).get("targets", {})
+    for target in ["profile", "rules", "datasets", "casebooks", "rubrics", "contributions", "public_samples"]:
+        detail = protected_targets.get(target, {})
+        if detail.get("may_modify") is not False:
+            errors.append(f"{label}: diagnosis must not authorize {target} mutation")
+        if detail.get("requires_user_confirmation") is not True:
+            errors.append(f"{label}: {target} must require user confirmation")
+    if not data.get("premises"):
+        errors.append(f"{label}: missing premises")
+    for premise in data.get("premises", []):
+        if premise.get("status") not in {"user-stated", "inferred", "assumed", "verified", "unknown"}:
+            errors.append(f"{label}: invalid premise status {premise.get('status')}")
+    if not data.get("completion_questions"):
+        errors.append(f"{label}: missing targeted completion questions")
+    for finding in data.get("findings", []):
+        if not finding.get("confidence"):
+            errors.append(f"{label}: finding {finding.get('id')} missing confidence")
+        if finding.get("premise_status") not in {"user-stated", "inferred", "assumed", "verified", "unknown"}:
+            errors.append(f"{label}: finding {finding.get('id')} invalid premise status")
+        for evidence in finding.get("evidence", []):
+            for field in ["id", "source_type", "evidence_type", "premise_status", "excerpt"]:
+                if field not in evidence:
+                    errors.append(f"{label}: finding {finding.get('id')} evidence missing {field}")
+    candidates = data.get("generated_candidates", [])
+    candidate_types = {candidate.get("type") for candidate in candidates}
+    for required in ["case", "eval", "profile", "rule", "contribution", "public_sample"]:
+        if required not in candidate_types:
+            errors.append(f"{label}: missing generated {required} candidate")
+    for candidate in candidates:
+        if candidate.get("status") != "preview_only":
+            errors.append(f"{label}: candidate {candidate.get('type')} must be preview_only")
+        if candidate.get("auto_apply") is not False:
+            errors.append(f"{label}: candidate {candidate.get('type')} must not auto-apply")
+        if candidate.get("writes_local_asset") is not False:
+            errors.append(f"{label}: candidate {candidate.get('type')} must not write local assets")
+        if candidate.get("requires_user_confirmation") is not True:
+            errors.append(f"{label}: candidate {candidate.get('type')} must require confirmation")
+    if not data.get("learning_feedback", {}).get("concepts"):
+        errors.append(f"{label}: missing learning concepts")
     return errors
 
 

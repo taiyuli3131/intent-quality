@@ -168,3 +168,24 @@ v0.3 candidate acceptance target:
 - Eval review can record human-review status and reviewer notes without changing the default scorer claim.
 - Experimental adapter exports are clearly marked internal and optional.
 - `intent-quality check` remains read-only and confirms the no-mutation boundary.
+
+## v0.3-alpha Diagnosis Quality Baseline
+
+Status: `v0.3-alpha diagnosis quality baseline accepted`
+
+Date: 2026-06-18
+
+Scope: diagnosis quality only; no playbook expansion, profile memory implementation, adapter export, LLM-as-judge, dashboard, hosted platform, or automatic mutation.
+
+Acceptance notes:
+
+- Manual and conversation diagnosis fixtures are covered by `intent-quality check`.
+- Diagnosis YAML exposes finding-level evidence, confidence, premise status, targeted completion questions, expected versus actual mode, authorization scope, learning notes, and generated candidates.
+- Markdown diagnosis reports render the v0.3-alpha diagnosis structure for user review.
+- Generated case, eval, profile, rule, contribution, and public-sample actions remain preview-only and do not create accepted assets or apply changes.
+- `check` remains read-only and reports `diagnosis quality fixtures` alongside the existing public sync and eval fixture checks.
+- No v0.3-alpha implementation work adds platform features, default LLM-as-judge scoring, adapter runtime dependencies, or automatic local mutation.
+
+Non-blocking notes:
+
+- Example synchronization cleanup may be handled after the baseline if future edits need to better align generated example Markdown and YAML presentation details.

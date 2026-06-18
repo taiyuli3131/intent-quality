@@ -1,124 +1,110 @@
-# Diagnosis Report: Direction Discussion Treated As Execution
-
-```yaml
-diagnosis_id: diag_20260616_001
-source_type: conversation
-overall_confidence: high
-primary_issue: authorization_boundary
-secondary_issues:
-  - response_mode_mismatch
-  - context_pollution
-```
+# Diagnosis diag_20260618_001
 
 ## Summary
 
-The user asked to discuss product direction. The Agent treated the discussion as authorization to update project files.
+- Primary issue: `authorization_boundary`
+- Secondary issues: response_mode_mismatch, context_pollution, premise_validation
+- Overall confidence: `medium`
 
-The main collaboration failure was an authorization boundary failure: discussion was interpreted as execution. A secondary issue was response mode mismatch: the expected mode was discussion, but the actual mode became file update.
+## Interaction State
 
-## Expected Versus Actual
+- Expected mode: `discussion`
+- Actual mode: `file_update`
+- Mismatch: `true`
+- Analysis: The Agent appears to have crossed from the expected mode into a different behavior mode.
 
-Expected interaction state:
+## Authorization Scope
 
-- mode: discussion
-- allowed actions: explain, compare, ask clarifying questions, propose edits
-- disallowed actions: write files, persist rules, mutate project state
+- Boundary status: `exceeded`
+- Expected scope: `discussion`
+- Actual scope: `file_update`
 
-Actual Agent behavior:
+| Target | Status | May Modify | Requires Confirmation |
+| --- | --- | --- | --- |
+| profile | `not_authorized` | `false` | `true` |
+| rules | `not_authorized` | `false` | `true` |
+| datasets | `not_authorized` | `false` | `true` |
+| casebooks | `not_authorized` | `false` | `true` |
+| rubrics | `not_authorized` | `false` | `true` |
+| contributions | `not_authorized` | `false` | `true` |
+| public_samples | `not_authorized` | `false` | `true` |
+| files | `denied` | `false` | `true` |
 
-- mode: file update
-- action: created or modified project documents
-- missing step: did not ask for explicit write authorization
+Notes:
 
-## Checks
+- Diagnosis may write only diagnosis reports.
+- Profile, rule, dataset, casebook, rubric, contribution, and public-sample changes remain preview-only.
 
-| Dimension | Result | Confidence |
-| --- | --- | --- |
-| Goal alignment | Partially preserved | Medium |
-| Authorization boundary | Failed | High |
-| Context pollution | Possible | Medium |
-| Premise validation | No major issue found | Medium |
-| Response mode | Mismatched | High |
+## Premises
+
+| ID | Status | Confidence | Statement | Evidence |
+| --- | --- | --- | --- | --- |
+| P001 | `user-stated` | `medium` | The expected interaction mode was discussion. | E001, E002 |
+| P002 | `inferred` | `medium` | The Agent's actual behavior mode was file_update. | E001, E002 |
+| P003 | `verified` | `high` | No durable local asset change was authorized by the diagnosis itself. | diagnose_no_mutation_policy |
+| P004 | `assumed` | `medium` | At least one decision-critical claim may be an assumption rather than verified fact. | E001, E002, E003, E004 |
 
 ## Findings
 
-### F001: Discussion Was Treated As File-Write Authorization
+### F001 - authorization_boundary
 
-Severity: high  
-Confidence: high
-
-Evidence:
-
-- User intent: "Discuss the project direction."
-- Agent action: project files were created or updated.
-
-Why it matters:
-
-File-capable Agents need a clear boundary between thinking with the user and changing the project. Direction discussions should not imply permission to mutate files.
-
-Recommendation:
-
-When the user asks to discuss, plan, evaluate, or brainstorm project direction, the Agent should stay in discussion mode unless the user explicitly authorizes file edits.
-
-### F002: Response Mode Was Not Confirmed Before Acting
-
-Severity: medium  
-Confidence: high
+- Severity: `high`
+- Confidence: `medium`
+- Premise status: `user-stated`
+- Conclusion: Authorization boundary may have been crossed or needs explicit confirmation.
+- Recommendation: Require explicit confirmation before file writes, profile changes, rule changes, datasets, casebooks, or contribution actions.
 
 Evidence:
 
-- No explicit confirmation step appeared before the file update.
-- The task language did not request implementation.
+- `E001` `input_text`/`authorization_signal` premise `user-stated`: The user asked to discuss direction only and said not to edit files. The Agent created file updates and modified project documents without permission.
+  - Supports: The input contains language associated with this diagnosis dimension.
 
-Recommendation:
+### F002 - response_mode_mismatch
 
-Before changing files during an ambiguous product-direction task, ask a short confirmation question such as:
+- Severity: `medium`
+- Confidence: `medium`
+- Premise status: `user-stated`
+- Conclusion: The requested response mode may not match the Agent action.
+- Recommendation: State the intended mode before acting and keep discussion/advice separate from execution.
 
-```text
-Do you want me to update the docs now, or keep this as discussion only?
-```
+Evidence:
 
-## Missing Information
+- `E002` `input_text`/`mode_signal` premise `user-stated`: The user asked to discuss the project direction only; the Agent treated planning as execution.
+  - Supports: The input contains language associated with this diagnosis dimension.
 
-These questions would improve diagnosis accuracy:
+## Targeted Completion Questions
 
-1. Did the user expect the Agent to make document edits during this phase?
-2. Were there earlier instructions in the conversation authorizing proactive file updates?
-3. Did the Agent explain what it planned to change before writing?
+- `Q001` What exact user wording defined the expected response mode?
+  - Targets: response_mode
+  - Why it matters: It separates user intent from the Agent's interpretation.
+- `Q002` Did the user explicitly authorize file writes or durable state changes?
+  - Targets: authorization_scope, files
+  - Why it matters: It determines whether the observed action was within scope or unauthorized.
+- `Q003` Which prior context was still relevant, and which context should have been excluded?
+  - Targets: context_pollution
+  - Why it matters: It distinguishes useful continuity from stale-context contamination.
+- `Q004` What evidence, if any, supports the decision-critical premise?
+  - Targets: premise_validation
+  - Why it matters: It prevents user-stated or assumed claims from being treated as verified.
 
 ## Learning Feedback
 
-Concepts:
+- User tip: Separate discussion, draft, execution, and persistence when asking file-capable Agents to work in a project.
+- Agent tip: Name the expected mode and ask before crossing from analysis into file or durable-state changes.
 
-- authorization boundary
-- response mode
-- diagnose versus eval
-
-User tip:
-
-For file-capable Agents, separate "discuss", "draft", and "apply" requests. For example:
-
-```text
-Let's discuss the product direction only. Do not edit files yet.
-```
-
-Agent behavior to encourage:
-
-```text
-I can discuss the direction first. I will not edit files unless you ask me to apply the changes.
-```
-
-## Generated Candidate Actions
-
-| Candidate | Status | Requires Confirmation |
+| Concept | Why It Matters | Playbook |
 | --- | --- | --- |
-| Casebook entry | Ready to review | Yes |
-| Eval sample | Ready to review | Yes |
-| Profile rule suggestion | Pending | Yes |
-| Contribution package | Optional | Yes |
+| `authorization_boundary` | File-capable Agents need explicit permission before crossing from discussion into mutation. | docs/playbook/authorization-boundary.md |
+| `response_mode_mismatch` | Mode labels help keep advice, verification, drafting, execution, and persistence separate. | docs/playbook/response-mode.md |
+| `context_pollution` | Long-running context is useful only when the Agent can tell current scope from stale assumptions. | docs/playbook/context-pollution.md |
 
-## Optional Contribution Prompt
+## Generated Candidates
 
-This diagnosis found a reusable collaboration issue that may help other Codex users.
-
-You can generate an anonymized contribution candidate for the public case pool. This is optional. You can review, edit, limit allowed uses, skip it, or turn off future prompts.
+| Type | Artifact | Status | Auto Apply | Writes Local Asset | Requires Confirmation |
+| --- | --- | --- | --- | --- | --- |
+| case | `casebook_entry` | `preview_only` | `false` | `false` | `true` |
+| eval | `eval_sample` | `preview_only` | `false` | `false` | `true` |
+| profile | `profile_update` | `preview_only` | `false` | `false` | `true` |
+| rule | `rule_update` | `preview_only` | `false` | `false` | `true` |
+| contribution | `contribution_package` | `preview_only` | `false` | `false` | `true` |
+| public_sample | `public_candidate` | `preview_only` | `false` | `false` | `true` |
