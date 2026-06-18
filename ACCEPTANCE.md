@@ -189,3 +189,19 @@ Acceptance notes:
 Non-blocking notes:
 
 - Example synchronization cleanup may be handled after the baseline if future edits need to better align generated example Markdown and YAML presentation details.
+
+## v0.3 P1 Playbook And Learning Baseline
+
+Status: `v0.3 P1 Playbook And Learning accepted baseline`
+
+Date: 2026-06-18
+
+Scope: local playbook and learning-link coverage only; no diagnosis core logic expansion, profile memory implementation, adapter export, LLM-as-judge, hosted platform, dashboard, or automatic mutation.
+
+Acceptance notes:
+
+- Playbook pages cover the core concepts used by diagnosis learning feedback: authorization boundary, context pollution, premise validation, response mode, diagnose versus eval, public sample trust, suggestions and confirmation, and contribution privacy.
+- Diagnosis examples link learning concepts to local playbook pages.
+- `intent-quality check` validates playbook links and remains read-only.
+- The learning layer stays compact and local; it is not a generic AI course or platform documentation system.
+- The baseline does not apply profile/rule/dataset/casebook/rubric/contribution/public-sample changes.

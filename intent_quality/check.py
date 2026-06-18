@@ -53,6 +53,7 @@ def run_check(args: Any) -> int:
     errors.extend(check_public_candidate_fixtures(root))
     errors.extend(check_eval_response_fixtures(root))
     errors.extend(check_diagnosis_quality_fixtures(root))
+    errors.extend(check_playbook_pages(root))
 
     if errors:
         print("local loop checks failed:")
@@ -61,7 +62,7 @@ def run_check(args: Any) -> int:
         return 1
 
     print("local loop checks passed")
-    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures, diagnosis quality fixtures")
+    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures, diagnosis quality fixtures, playbook links")
     print("mode: read-only; no rules, profiles, datasets, casebooks, candidates, suggestions, or submissions were modified")
     return 0
 
@@ -212,6 +213,7 @@ def check_diagnosis_quality_fixtures(root: Path) -> list[str]:
         source_type = item.get("source_type", "manual")
         diagnosis = build_diagnosis(text, f"fixture_{path.stem}", source_type, path, root)
         errors.extend(validate_diagnosis_quality(diagnosis, str(path), item))
+        errors.extend(validate_learning_playbook_links(diagnosis, str(path), root))
         rendered = render_diagnosis_markdown(diagnosis)
         for required in [
             "## Authorization Scope",
@@ -229,9 +231,10 @@ def check_diagnosis_quality_fixtures(root: Path) -> list[str]:
     if not example_yaml.exists():
         errors.append(f"{example_yaml}: missing YAML diagnosis report example")
     else:
+        example_diagnosis = load_yaml(example_yaml)
         errors.extend(
             validate_diagnosis_quality(
-                load_yaml(example_yaml),
+                example_diagnosis,
                 str(example_yaml),
                 {
                     "expected_primary_issue": "authorization_boundary",
@@ -240,6 +243,26 @@ def check_diagnosis_quality_fixtures(root: Path) -> list[str]:
                 },
             )
         )
+        errors.extend(validate_learning_playbook_links(example_diagnosis, str(example_yaml), root))
+    return errors
+
+
+def check_playbook_pages(root: Path) -> list[str]:
+    required = [
+        "authorization-boundary.md",
+        "context-pollution.md",
+        "premise-validation.md",
+        "response-mode.md",
+        "diagnose-vs-eval.md",
+        "public-sample-trust.md",
+        "suggestions-and-confirmation.md",
+        "contribution-privacy.md",
+    ]
+    errors: list[str] = []
+    for filename in required:
+        path = root / "docs" / "playbook" / filename
+        if not path.exists():
+            errors.append(f"{path}: missing playbook page")
     return errors
 
 
@@ -332,6 +355,28 @@ def validate_diagnosis_quality(data: dict[str, Any], label: str, expected: dict[
             errors.append(f"{label}: candidate {candidate.get('type')} must require confirmation")
     if not data.get("learning_feedback", {}).get("concepts"):
         errors.append(f"{label}: missing learning concepts")
+    return errors
+
+
+def validate_learning_playbook_links(data: dict[str, Any], label: str, root: Path) -> list[str]:
+    errors: list[str] = []
+    for item in data.get("learning_feedback", {}).get("concepts", []):
+        if not isinstance(item, dict):
+            errors.append(f"{label}: learning concept must be a mapping")
+            continue
+        playbook = item.get("playbook")
+        concept = item.get("concept", "<unknown>")
+        if not playbook:
+            errors.append(f"{label}: learning concept {concept} missing playbook link")
+            continue
+        path = (root / playbook).resolve()
+        try:
+            path.relative_to(root.resolve())
+        except ValueError:
+            errors.append(f"{label}: learning concept {concept} playbook must stay under project root")
+            continue
+        if not path.exists():
+            errors.append(f"{label}: learning concept {concept} playbook not found: {playbook}")
     return errors
 
 

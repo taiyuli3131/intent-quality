@@ -128,6 +128,7 @@ Evidence:
 | `authorization_boundary` | File-capable Agents need explicit permission before crossing from discussion into mutation. | docs/playbook/authorization-boundary.md |
 | `response_mode_mismatch` | Mode labels help keep advice, verification, drafting, execution, and persistence separate. | docs/playbook/response-mode.md |
 | `context_pollution` | Long-running context is useful only when the Agent can tell current scope from stale assumptions. | docs/playbook/context-pollution.md |
+| `premise_validation` | Decision-critical claims should be labeled as user-stated, inferred, assumed, verified, or unknown. | docs/playbook/premise-validation.md |
 
 ## Generated Candidates
 

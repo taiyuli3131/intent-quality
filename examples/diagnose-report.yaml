@@ -225,6 +225,10 @@ learning_feedback:
     why_it_matters: Long-running context is useful only when the Agent can tell current
       scope from stale assumptions.
     playbook: docs/playbook/context-pollution.md
+  - concept: premise_validation
+    why_it_matters: Decision-critical claims should be labeled as user-stated, inferred,
+      assumed, verified, or unknown.
+    playbook: docs/playbook/premise-validation.md
   user_tip: Separate discussion, draft, execution, and persistence when asking file-capable
     Agents to work in a project.
   agent_tip: Name the expected mode and ask before crossing from analysis into file

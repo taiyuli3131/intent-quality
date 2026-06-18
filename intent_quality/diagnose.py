@@ -176,7 +176,7 @@ def build_diagnosis(
                     "why_it_matters": learning_note_for(concept),
                     "playbook": playbook_path_for(concept),
                 }
-                for concept in detected[:3]
+                for concept in detected
             ],
             "user_tip": "Separate discussion, draft, execution, and persistence when asking file-capable Agents to work in a project.",
             "agent_tip": "Name the expected mode and ask before crossing from analysis into file or durable-state changes.",

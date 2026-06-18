@@ -220,7 +220,16 @@ The product teaches better Agent collaboration in two ways:
 - short feedback inside diagnosis reports;
 - local playbook concept pages for recurring topics.
 
-See [docs/playbook/authorization-boundary.md](docs/playbook/authorization-boundary.md) for a first concept page draft.
+Current local playbook pages:
+
+- [authorization boundary](docs/playbook/authorization-boundary.md)
+- [response mode](docs/playbook/response-mode.md)
+- [context pollution](docs/playbook/context-pollution.md)
+- [premise validation](docs/playbook/premise-validation.md)
+- [diagnose versus eval](docs/playbook/diagnose-vs-eval.md)
+- [public sample trust](docs/playbook/public-sample-trust.md)
+- [suggestions and confirmation](docs/playbook/suggestions-and-confirmation.md)
+- [contribution privacy](docs/playbook/contribution-privacy.md)
 
 ## Current Project Documents
 
