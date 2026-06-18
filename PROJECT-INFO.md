@@ -62,7 +62,8 @@ diagnose real collaboration issues
 - `SCHEMAS.md`: YAML schemas for diagnosis, case, eval dataset, profile, public candidate, suggestion, and contribution files.
 - `DIAGNOSE-EVAL-FLOW.md`: operational flow for diagnose, eval, public sync, suggestions, contribution, and learning feedback.
 - `docs/release-v0.2.md`: current v0.2 capability summary and non-goals.
-- `docs/v0.3-planning-brief.md`: next-phase planning brief and recommended conversation initialization.
+- `docs/v0.3-planning-brief.md`: seed brief for v0.3 planning.
+- `docs/v0.3-roadmap.md`: v0.3 planning baseline, including priorities, scope, non-goals, acceptance criteria, and follow-up workstreams.
 - `docs/public-sync-contribution-minimal-loop.md`: first local closed-loop design for public sync, external candidate checks, suggestions, contribution packages, anonymization, withdrawal, and prompt controls.
 - `public-registry/`: sample public registry structure and index format.
 - `intent-quality-direction.md`: early English direction record. Keep as historical source; do not use it as the active product spec.
@@ -114,16 +115,22 @@ Older historical content that was only a subset of the current charger-ranking f
 
 ## 8. Next Planning Direction
 
-The next phase should start as v0.3 planning, not immediate implementation.
+v0.3 planning has a baseline roadmap in `docs/v0.3-roadmap.md`.
 
-Recommended v0.3 planning themes:
+The v0.3 product goal is to make `diagnose` trustworthy enough to become the main product entry point while preserving the v0.2 local-first, file-based, confirmation-gated safety model.
 
-- improve diagnosis quality and completion-question guidance;
-- expand playbook coverage for concepts users see in reports;
-- explore adapter export as experimental/internal output;
-- consider stronger scorer review paths without making a full semantic evaluator the default;
-- decide whether local profile memory should become more useful while remaining confirmation-gated;
-- keep public registry improvements below platform scope unless explicitly accepted.
+Priority order:
+
+- P0: diagnosis quality, including finding-level evidence, confidence, premise status, targeted completion questions, authorization-scope analysis, learning notes, and preview-only diagnosis-derived candidates.
+- P1: learning and playbook expansion for the concepts users see in diagnosis reports.
+- P1: local profile memory as reviewable suggestions only, including recurring failure summaries, stale-memory warnings, impact scope, and rollback notes.
+- P1: eval review through human-review status and reviewer notes for ambiguous `needs_review` cases.
+- P2: adapter export as experimental/internal draft output only.
+- P2: public registry maintenance below platform scope.
+
+v0.3 should not add hosted accounts, dashboards, automatic public upload, automatic public-sample adoption, automatic profile/rule/dataset/casebook/rubric/contribution mutation, production registry trust infrastructure, default LLM-as-judge scoring, or a complete semantic evaluator.
+
+The first implementation specialty should be diagnosis quality.
 
 ## 9. First-Phase Deliverables
 

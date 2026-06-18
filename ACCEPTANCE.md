@@ -128,3 +128,43 @@ Non-blocking notes:
 
 - The eval scorer is stronger than v0.1 but remains a heuristic marker-based regression scorer, not a complete semantic evaluator.
 - Adapter-ready output can be explored after v0.2, but DeepEval, Promptfoo, and Pydantic Evals are not core runtime dependencies in this candidate.
+
+## v0.3 Planning Baseline
+
+Status: `v0.3 planning baseline accepted`
+
+Date: 2026-06-18
+
+Baseline file: `docs/v0.3-roadmap.md`
+
+Scope: roadmap only; no code implementation.
+
+Planning baseline notes:
+
+- v0.3 should make `diagnose` trustworthy enough to become the main product entry point.
+- P0 is diagnosis quality: finding-level evidence, confidence, premise status, targeted completion questions, authorization-scope analysis, learning notes, and preview-only diagnosis-derived candidates.
+- P1 includes playbook expansion, confirmation-gated local profile memory suggestions, and human-review workflow for ambiguous eval results.
+- P2 includes experimental/internal adapter export drafts and limited public registry maintenance below platform scope.
+- The first implementation specialty should be diagnosis quality.
+
+v0.3 planning non-goals:
+
+- No hosted account system.
+- No full dashboard.
+- No platformization.
+- No automatic public upload.
+- No automatic public-sample adoption.
+- No automatic profile, rule, dataset, casebook, rubric, contribution, or public sample mutation.
+- No default LLM-as-judge scorer.
+- No complete semantic evaluator claim for the heuristic scorer.
+- No adapter export as a core runtime dependency.
+
+v0.3 candidate acceptance target:
+
+- Diagnosis reports expose evidence, confidence, premise status, missing-information questions, expected versus actual mode, and authorization scope.
+- Diagnosis-derived case, eval, profile, rule, contribution, and public-sample actions remain preview-only or pending suggestions.
+- Playbook pages cover the core concepts used in diagnosis reports.
+- Local profile memory remains reviewable and confirmation-gated.
+- Eval review can record human-review status and reviewer notes without changing the default scorer claim.
+- Experimental adapter exports are clearly marked internal and optional.
+- `intent-quality check` remains read-only and confirms the no-mutation boundary.
