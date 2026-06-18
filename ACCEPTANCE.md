@@ -14,3 +14,40 @@ The v0.1 candidate is accepted across the current product delivery, internal qua
 
 - The current eval scorer is an MVP heuristic scorer, not a full semantic evaluator.
 - The public sync minimal loop generates candidate suggestions from index metadata. This is acceptable for v0.1, but later versions should strengthen real candidate content retrieval and stricter schema validation.
+
+## v0.2 Direction
+
+Status: `v0.2 scoped for next iteration`
+
+Date: 2026-06-16
+
+## v0.2 Acceptance Target
+
+v0.2 should preserve the v0.1 local-first safety model while making the loop more trustworthy and useful in real projects.
+
+The next candidate should be accepted only when:
+
+- diagnosis reports produce clearer evidence, confidence, missing-information, and learning sections across manual, conversation, and project inputs;
+- eval scoring is upgraded beyond the MVP heuristic baseline, with explicit evidence mapping and regression-friendly result records;
+- public sync can fetch or stage real candidate content, not only index metadata, while keeping external samples untrusted by default;
+- schema and rubric validation failures are visible, explainable, and blocking where adoption would be unsafe;
+- suggestions include preview, impact scope, confirmation state, and rollback guidance before any local mutation;
+- contribution packages include reviewable anonymization and privacy reports, with submission still blocked until explicit user authorization;
+- playbook pages cover the core concepts users need to understand diagnosis results and safer Agent collaboration.
+
+## v0.2 Non-Goals
+
+- No hosted account system.
+- No full dashboard.
+- No automatic public upload.
+- No automatic acceptance of public samples.
+- No automatic mutation of profile, rules, accepted datasets, casebooks, rubrics, or contribution settings.
+- No enterprise governance workflow.
+
+## v0.2 Review Checklist
+
+- The v0.1 CLI remains narrow and local.
+- Any new mutating operation has preview, confirmation, and rollback language.
+- Public samples remain untrusted until locally checked and user accepted.
+- Eval improvements do not pretend to be a complete semantic judge unless the implementation supports that claim.
+- Documentation distinguishes implemented v0.1 behavior from planned v0.2 work.

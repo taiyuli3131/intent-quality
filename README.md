@@ -116,6 +116,28 @@ python -m intent_quality.cli check
 
 The MVP keeps mutating behavior narrow. `diagnose` writes only diagnosis reports under `.intent-quality/diagnoses/`. `public fetch` writes only the public index and fetch metadata. `public suggest` writes external candidates and pending suggestions only. `contribute create` writes a local pending contribution package only. `check`, `eval`, `suggest list`, and `contribute review` are read-only. No profile, rules, accepted dataset, casebook, rubric, public upload, or contribution state change is applied automatically.
 
+## v0.2 Roadmap
+
+v0.1 proves the local loop. v0.2 should make that loop more inspectable, stricter, and more useful on real Agent work.
+
+Planned focus:
+
+- stronger diagnosis evidence, confidence, and missing-information handling;
+- eval results with explicit evidence mapping, blocking failures, dimension rationales, and regression-friendly result files;
+- real public candidate content staging after index discovery, with hash checks where available;
+- stricter schema, rubric, privacy, poisoning, and relevance checks before suggestions are generated;
+- suggestion preview/apply/rollback records for any local mutation;
+- clearer contribution privacy review, allowed-use controls, submission gates, and withdrawal records;
+- more playbook pages for response mode, context pollution, premise validation, public sample trust, diagnose versus eval, suggestions, and contribution privacy.
+
+v0.2 does not change the safety model:
+
+- no hosted accounts;
+- no full dashboard;
+- no automatic public uploads;
+- no automatic public-sample adoption;
+- no automatic profile, rule, dataset, casebook, rubric, or contribution mutation.
+
 ## Diagnose Versus Eval
 
 `diagnose` is for discovery and learning. It studies real usage and explains what happened.

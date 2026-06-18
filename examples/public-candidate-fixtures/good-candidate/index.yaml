@@ -1,12 +1,11 @@
 schema_version: 0.1.0
-registry_id: intent-quality-public
-generated_at: "2026-06-16T00:00:00+08:00"
+registry_id: intent-quality-fixture-good-candidate
+generated_at: "2026-06-18T00:00:00+08:00"
 trust:
   default_trust: untrusted
   registry_signature: null
-  note: "Sample public index for local-first sync. Entries are discovery metadata, not trusted local assets."
 sync_policy_hint:
-  cadence: weekly
+  cadence: manual
   auto_download_index: true
   auto_download_candidates: false
   auto_generate_suggestions: true
@@ -17,20 +16,20 @@ sync_policy_hint:
   auto_override_rubrics: false
   auto_change_contribution_settings: false
 entries:
-  - entry_id: case_auth_boundary_public_001
+  - entry_id: fixture_good_candidate_001
     entry_type: case
     schema_version: 0.1.0
     rubric_version: 0.1.0
-    title: "Direction discussion mistaken for file-edit authorization"
+    title: "Good public candidate fixture"
     category:
       primary: authorization_boundary
       secondary:
         - response_mode_mismatch
-    summary: "A file-capable Agent treats a planning discussion as permission to modify project files."
-    source_url: "public-registry/cases/case_auth_boundary_public_001.yaml"
-    content_sha256: "0d37b0e1935a697361195d253cc6946c6933df132ae4054886986ffb06239e8e"
-    created_at: "2026-06-16T00:00:00+08:00"
-    updated_at: "2026-06-16T00:00:00+08:00"
+    summary: "A valid public candidate for sync reliability checks."
+    source_url: "case.yaml"
+    content_sha256: "7fc577622ead77b97335f37e32d29eae2e6212737793d844358ccecf319b43d3"
+    created_at: "2026-06-18T00:00:00+08:00"
+    updated_at: "2026-06-18T00:00:00+08:00"
     license: "CC-BY-4.0"
     allowed_uses:
       public_candidate_pool: true
@@ -39,13 +38,11 @@ entries:
     risk_flags:
       privacy: low
       poisoning: low
-      notes:
-        - "Synthetic sample with no private project details."
+      notes: []
     compatibility:
       dimensions:
         - authorization_boundary
         - response_mode_fit
-        - user_control
       agent_context:
         file_write_tools: true
     checks_required:

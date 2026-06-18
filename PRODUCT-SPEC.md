@@ -42,6 +42,39 @@ First phase excludes:
 - enterprise governance workflows;
 - default cross-project global history analysis.
 
+## 2.1 Version Roadmap
+
+v0.1 establishes the local MVP:
+
+- diagnosis report generation;
+- local cases and eval datasets;
+- heuristic eval scoring;
+- public index fetch and suggestion generation;
+- local pending contribution packages;
+- read-only safety checks;
+- user-facing examples and initial playbook pages.
+
+v0.2 should strengthen the same local-first loop rather than change the product category.
+
+v0.2 priorities:
+
+- improve diagnosis quality with better evidence mapping, confidence explanations, and missing-information handling;
+- upgrade eval output from simple heuristic scoring toward evidence-based scoring that is easier to inspect and rerun;
+- fetch or stage real public candidate content after index discovery, while keeping candidates untrusted by default;
+- make schema and rubric validation stricter and more explainable;
+- add preview/apply/rollback structure for suggestions that may mutate local state;
+- expand contribution privacy review, anonymization notes, allowed-use controls, and withdrawal records;
+- expand playbook coverage for the concepts users see in reports.
+
+v0.2 remains out of scope:
+
+- hosted accounts;
+- full dashboards;
+- automatic public uploads;
+- automatic public-sample adoption;
+- automatic profile, rule, dataset, casebook, rubric, or contribution mutation;
+- enterprise governance workflows.
+
 ## 3. Diagnose And Eval
 
 `diagnose` is for real user work. It answers:
@@ -205,6 +238,17 @@ Future tests should compare:
 - prompt-only clarification behavior;
 - post-output evaluation behavior;
 - `intent-quality` pre-action and post-action behavior.
+
+For v0.2, eval should focus on inspectable evidence and regression usefulness before attempting a broad semantic evaluator.
+
+v0.2 eval outputs should include:
+
+- the evaluated case and rubric versions;
+- observed evidence from the Agent response;
+- passed and failed required observations;
+- blocking failures;
+- dimension scores with short rationales;
+- a stable result file suitable for comparing later runs.
 
 The automatic update loop should eventually:
 

@@ -1,20 +1,22 @@
 from __future__ import annotations
 
+import hashlib
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
+from urllib.request import urlopen
 
 from .paths import ensure_dir, find_project_root, local_state_dir
-from .schemas import load_yaml, write_yaml
+from .schemas import load_yaml, load_yaml_bytes, validate_public_case, validate_public_index, write_yaml
 
 
-REQUIRED_PUBLIC_CHECKS = [
-    "schema_valid",
-    "rubric_compatible",
-    "privacy_risk",
-    "poisoning_risk",
-    "relevance_explained",
-]
+@dataclass(frozen=True)
+class CachedCandidate:
+    data: dict[str, Any]
+    cache_path: Path
+    sha256: str
 
 
 def run_public_fetch(args: Any) -> int:
@@ -25,7 +27,7 @@ def run_public_fetch(args: Any) -> int:
         return 1
 
     data = load_yaml(source)
-    errors = validate_public_index_policy(data, source)
+    errors = validate_public_index(data, str(source))
     if errors:
         print("public fetch blocked:")
         for error in errors:
@@ -60,7 +62,7 @@ def run_public_suggest(args: Any) -> int:
         return 1
 
     index = load_yaml(index_path)
-    errors = validate_public_index_policy(index, index_path)
+    errors = validate_public_index(index, str(index_path))
     if errors:
         print("public suggest blocked:")
         for error in errors:
@@ -78,7 +80,10 @@ def run_public_suggest(args: Any) -> int:
     suggestion_dir = ensure_dir(local_state_dir(root) / "suggestions")
     suggestions = []
     for entry in entries:
-        candidate = build_external_candidate(index, entry)
+        fetched = fetch_and_gate_candidate(root, index_path, entry)
+        if fetched is None:
+            return 1
+        candidate = build_external_candidate(index, entry, fetched)
         candidate_path = candidate_dir / f"{candidate['candidate_id']}.yaml"
         write_yaml(candidate_path, candidate)
         suggestions.extend(build_suggestions(candidate, entry))
@@ -93,36 +98,79 @@ def run_public_suggest(args: Any) -> int:
         },
     )
     print(f"external candidates written: {candidate_dir}")
+    print(f"candidate cache written: {local_state_dir(root) / 'public' / 'cache'}")
     print(f"pending suggestions written: {pending_path}")
     print("mode: suggestion generation only; no suggestions were applied")
     return 0
 
 
-def validate_public_index_policy(data: dict[str, Any], source: Path) -> list[str]:
-    errors: list[str] = []
-    if data.get("trust", {}).get("default_trust") != "untrusted":
-        errors.append(f"{source}: public index must default to untrusted")
-    policy = data.get("sync_policy_hint", {})
-    for key in [
-        "auto_download_candidates",
-        "auto_apply_rules",
-        "auto_modify_profile",
-        "auto_add_eval_cases",
-        "auto_add_casebook_entries",
-        "auto_override_rubrics",
-        "auto_change_contribution_settings",
-    ]:
-        if policy.get(key) is not False:
-            errors.append(f"{source}: {key} must be false")
-    for entry in data.get("entries", []):
-        checks = set(entry.get("checks_required", []))
-        for check in REQUIRED_PUBLIC_CHECKS:
-            if check not in checks:
-                errors.append(f"{source}:{entry.get('entry_id', '<unknown>')}: missing check {check}")
-    return errors
+def fetch_and_gate_candidate(root: Path, index_path: Path, entry: dict[str, Any]) -> CachedCandidate | None:
+    entry_id = entry.get("entry_id", "unknown")
+    try:
+        content = fetch_source_bytes(root, index_path, entry)
+    except OSError as exc:
+        print(f"public candidate fetch blocked: {entry_id}: {exc}")
+        return None
+
+    actual_sha = hashlib.sha256(content).hexdigest()
+    expected_sha = entry.get("content_sha256")
+    if expected_sha != actual_sha:
+        print("public candidate fetch blocked:")
+        print(f"- {entry_id}: content_sha256 mismatch")
+        print(f"  expected: {expected_sha}")
+        print(f"  actual:   {actual_sha}")
+        return None
+
+    data, parse_errors = load_yaml_bytes(content, entry_id)
+    if parse_errors or data is None:
+        print("public candidate gate blocked:")
+        for error in parse_errors:
+            print(f"- {error}")
+        return None
+
+    gate_errors = validate_public_case(data, entry, entry_id)
+    if gate_errors:
+        print("public candidate gate blocked:")
+        for error in gate_errors:
+            print(f"- {error}")
+        return None
+
+    cache_dir = ensure_dir(local_state_dir(root) / "public" / "cache")
+    suffix = source_suffix(entry.get("source_url"))
+    cache_path = cache_dir / f"{entry_id}{suffix}"
+    cache_path.write_bytes(content)
+    return CachedCandidate(data=data, cache_path=cache_path, sha256=actual_sha)
 
 
-def build_external_candidate(index: dict[str, Any], entry: dict[str, Any]) -> dict[str, Any]:
+def fetch_source_bytes(root: Path, index_path: Path, entry: dict[str, Any]) -> bytes:
+    source_url = entry.get("source_url")
+    if not source_url:
+        raise OSError("missing source_url")
+    parsed = urlparse(source_url)
+    if parsed.scheme in {"http", "https"}:
+        with urlopen(source_url, timeout=20) as response:
+            return response.read()
+    if parsed.scheme == "file":
+        return Path(parsed.path).read_bytes()
+
+    source = Path(source_url)
+    candidates = [source]
+    if not source.is_absolute():
+        candidates = [root / source, index_path.parent / source]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate.read_bytes()
+    raise OSError(f"source_url not found: {source_url}")
+
+
+def source_suffix(source_url: str | None) -> str:
+    if not source_url:
+        return ".yaml"
+    suffix = Path(urlparse(source_url).path).suffix
+    return suffix if suffix else ".yaml"
+
+
+def build_external_candidate(index: dict[str, Any], entry: dict[str, Any], fetched: CachedCandidate) -> dict[str, Any]:
     entry_id = entry.get("entry_id", "unknown")
     privacy = entry.get("risk_flags", {}).get("privacy", "medium")
     poisoning = entry.get("risk_flags", {}).get("poisoning", "medium")
@@ -134,6 +182,9 @@ def build_external_candidate(index: dict[str, Any], entry: dict[str, Any]) -> di
             "source_url": entry.get("source_url"),
             "fetched_at": now_iso(),
             "public_entry_id": entry_id,
+            "cache_path": f".intent-quality/public/cache/{fetched.cache_path.name}",
+            "content_sha256": fetched.sha256,
+            "sha256_verified": True,
         },
         "trust": {
             "status": "external_candidate",
@@ -153,6 +204,11 @@ def build_external_candidate(index: dict[str, Any], entry: dict[str, Any]) -> di
                 f"Public entry '{entry.get('title', entry_id)}' matches local collaboration-quality dimensions.",
                 "The candidate remains untrusted until the user explicitly accepts it.",
             ],
+        },
+        "content_summary": {
+            "case_id": fetched.data.get("case_id"),
+            "title": fetched.data.get("title"),
+            "primary_category": fetched.data.get("category", {}).get("primary"),
         },
         "suggested_actions": [
             {"type": "learning_note", "requires_user_confirmation": True},

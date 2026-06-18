@@ -20,6 +20,20 @@ diagnose
 
 This loop turns real Agent collaboration issues into reusable cases, tests, learning feedback, and optional public contributions.
 
+v0.1 proves the loop with local files, a narrow CLI, heuristic eval, public index sync, reviewable suggestions, and local contribution packages.
+
+v0.2 should make the same loop more evidence-based:
+
+```text
+diagnose with stronger evidence
+-> generate better cases and eval samples
+-> run inspectable eval scoring
+-> fetch/stage checked public candidate content
+-> generate previewable suggestions
+-> apply only after confirmation
+-> record rollback and learning state
+```
+
 ## 2. Diagnose
 
 `diagnose` analyzes real usage.
@@ -72,6 +86,15 @@ Eval should report:
 - failed requirements;
 - evidence from the Agent response;
 - suggested rubric, prompt, skill, or case updates.
+
+v0.2 eval should additionally report:
+
+- rubric and dataset versions used for the run;
+- required observations that passed;
+- blocking failures that were triggered;
+- short rationale per scored dimension;
+- stable result IDs for regression comparison;
+- whether the scoring method was heuristic, semantic, human-reviewed, or mixed.
 
 Eval samples should be generated naturally from high-quality diagnosis outputs rather than maintained as an unrelated test system.
 
@@ -129,6 +152,20 @@ External samples stay in `external-candidates` until accepted.
 
 The first local closed-loop sample is documented in `docs/public-sync-contribution-minimal-loop.md` and represented under `examples/local-loop/.intent-quality/`.
 
+v0.2 public sync should separate index discovery from candidate content staging:
+
+```text
+fetch index
+-> select relevant entries
+-> fetch or stage candidate content
+-> verify content hash when available
+-> run schema, rubric, privacy, poisoning, and relevance checks
+-> write external candidate
+-> generate suggestion only if checks pass or produce a safe learning note
+```
+
+Candidate content retrieval must not imply trust or adoption.
+
 ## 6. Public Sample Trust
 
 All public samples are untrusted by default.
@@ -172,6 +209,19 @@ Suggestion types:
 
 All suggestions that mutate local state require preview and confirmation.
 
+v0.2 suggestions should be reviewable as small local change proposals.
+
+Each mutating suggestion should show:
+
+- source and evidence;
+- target files or local state;
+- proposed change summary;
+- impact scope;
+- non-goals;
+- rollback plan;
+- confirmation state;
+- whether the action is reversible.
+
 ## 8. Contribution
 
 Contribution is optional, lightweight, and shown at the end of a useful diagnosis.
@@ -207,6 +257,14 @@ Contribution states:
 - `rejected`;
 - `withdrawn`.
 
+v0.2 contribution review should make the privacy and authorization boundary clearer:
+
+- show what was generalized or redacted;
+- flag private paths, repository URLs, secrets, personal identifiers, and long verbatim logs;
+- keep documentation-example permission off by default;
+- require explicit submission authorization even after package generation;
+- record withdrawal requests without rewriting diagnosis history.
+
 ## 9. Learning Feedback
 
 Learning should help the user become a stronger Agent collaborator.
@@ -227,6 +285,17 @@ Examples of playbook topics:
 - response mode;
 - public sample trust;
 - diagnose versus eval.
+
+v0.2 playbook coverage should include at least:
+
+- authorization boundary;
+- response mode;
+- context pollution;
+- premise validation;
+- public sample trust;
+- diagnose versus eval;
+- suggestions and confirmation;
+- contribution privacy.
 
 ## 10. Pre-Action Skill Behavior
 
