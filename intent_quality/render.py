@@ -49,6 +49,24 @@ def render_diagnosis_markdown(data: dict[str, Any]) -> str:
         lines.extend(["", "Notes:"])
         lines.extend(f"- {note}" for note in auth_scope.get("notes", []))
 
+    dimensions = data.get("dimensions", {})
+    if dimensions:
+        lines.extend(
+            [
+                "",
+                "## Dimensions",
+                "",
+                "| Dimension | Score | Confidence | Findings |",
+                "| --- | --- | --- | --- |",
+            ]
+        )
+        for dimension, detail in dimensions.items():
+            findings_list = ", ".join(detail.get("findings", [])) or "none"
+            lines.append(
+                f"| `{dimension}` | `{detail.get('score', 'unknown')}` | "
+                f"`{detail.get('confidence', 'unknown')}` | {findings_list} |"
+            )
+
     lines.extend(
         [
             "",
@@ -136,6 +154,10 @@ def render_diagnosis_markdown(data: dict[str, Any]) -> str:
             "",
             "## Generated Candidates",
             "",
+            "Fields shown below map to `type`, `artifact_type`, `status`, `auto_apply`, `writes_local_asset`, and `requires_user_confirmation`.",
+            "",
+            "Candidate previews are review data only. `preview_only`, `auto_apply: false`, and `writes_local_asset: false` mean these rows do not apply changes or create local assets.",
+            "",
             "| Type | Artifact | Status | Auto Apply | Writes Local Asset | Requires Confirmation |",
             "| --- | --- | --- | --- | --- | --- |",
         ]
@@ -147,5 +169,19 @@ def render_diagnosis_markdown(data: dict[str, Any]) -> str:
             f"`{str(candidate.get('writes_local_asset', False)).lower()}` | "
             f"`{str(candidate.get('requires_user_confirmation', True)).lower()}` |"
         )
+    preview_lines = []
+    for candidate in data.get("generated_candidates", []):
+        preview = candidate.get("preview", {})
+        if preview:
+            included = ", ".join(preview.get("included_dimensions", [])) or "none"
+            preview_lines.append(
+                f"- `{candidate.get('type', '')}`/`{candidate.get('artifact_type', '')}`: "
+                f"{preview.get('title', 'Untitled preview')} - "
+                f"{preview.get('summary', 'No summary provided.')} "
+                f"Included dimensions: {included}."
+            )
+    if preview_lines:
+        lines.extend(["", "Preview details:"])
+        lines.extend(preview_lines)
     lines.append("")
     return "\n".join(lines)
