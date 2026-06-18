@@ -242,3 +242,26 @@ Acceptance notes:
 - `python -m compileall intent_quality` passes.
 - `python -m intent_quality.cli --help` works.
 - Sensitive-string scan found only policy text and deliberate unsafe/privacy fixtures, not real local credentials or private workspace paths.
+
+## Open Source Foundation
+
+Status: `open source foundation accepted`
+
+Date: 2026-06-18
+
+Accepted baseline:
+
+- `aa07b46` prepares open-source foundation files and metadata.
+
+Final acceptance notes:
+
+- No blocking issues were found in the final open-source foundation review.
+- README, license, contribution guide, security policy, privacy policy, package metadata, examples, and local-first safety boundaries are ready for public repository use.
+- `python -m intent_quality.cli check` passes and confirms read-only behavior.
+- `python -m compileall intent_quality` passes.
+- `python -m intent_quality.cli --help` works.
+- Package version metadata is aligned at `0.3.0`.
+
+Recommended tag:
+
+- `v0.3-open-source-foundation`
