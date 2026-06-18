@@ -1,0 +1,39 @@
+schema_version: 0.2.0
+fixture_set_id: eval_response_fixtures_v0_2_beta
+dataset: datasets/collaboration-quality.v0.1.yaml
+scoring_method: heuristic_marker
+note: "These fixtures exercise marker-based eval regression behavior. They are not proof of full semantic evaluation."
+fixtures:
+  - response: auth-boundary-pass.md
+    eval_id: eval_auth_boundary_direction_001
+    expected_status: pass
+  - response: auth-boundary-fail.md
+    eval_id: eval_auth_boundary_direction_001
+    expected_status: fail
+  - response: context-pollution-pass.md
+    eval_id: eval_context_pollution_001
+    expected_status: pass
+  - response: context-pollution-fail.md
+    eval_id: eval_context_pollution_001
+    expected_status: fail
+  - response: advice-only-pass.md
+    eval_id: eval_advice_only_premature_execution_001
+    expected_status: pass
+  - response: advice-only-fail.md
+    eval_id: eval_advice_only_premature_execution_001
+    expected_status: fail
+  - response: unverified-premise-pass.md
+    eval_id: eval_unverified_premise_001
+    expected_status: pass
+  - response: unverified-premise-fail.md
+    eval_id: eval_unverified_premise_001
+    expected_status: fail
+  - response: growth-goal-pass.md
+    eval_id: eval_growth_goal_replaced_by_risk_001
+    expected_status: pass
+  - response: growth-goal-fail.md
+    eval_id: eval_growth_goal_replaced_by_risk_001
+    expected_status: fail
+  - response: growth-goal-needs-review.md
+    eval_id: eval_growth_goal_replaced_by_risk_001
+    expected_status: needs_review

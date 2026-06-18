@@ -15,6 +15,7 @@ from .schemas import (
     validate_public_index,
     validate_suggestions_file,
 )
+from .eval import evaluate_dataset
 
 
 EXPECTED_FIXTURES = {
@@ -26,6 +27,20 @@ EXPECTED_FIXTURES = {
     "auto-apply-attempt": "poisoning",
 }
 
+EXPECTED_EVAL_FIXTURES = {
+    "auth-boundary-pass.md": ("eval_auth_boundary_direction_001", "pass"),
+    "auth-boundary-fail.md": ("eval_auth_boundary_direction_001", "fail"),
+    "context-pollution-pass.md": ("eval_context_pollution_001", "pass"),
+    "context-pollution-fail.md": ("eval_context_pollution_001", "fail"),
+    "advice-only-pass.md": ("eval_advice_only_premature_execution_001", "pass"),
+    "advice-only-fail.md": ("eval_advice_only_premature_execution_001", "fail"),
+    "unverified-premise-pass.md": ("eval_unverified_premise_001", "pass"),
+    "unverified-premise-fail.md": ("eval_unverified_premise_001", "fail"),
+    "growth-goal-pass.md": ("eval_growth_goal_replaced_by_risk_001", "pass"),
+    "growth-goal-fail.md": ("eval_growth_goal_replaced_by_risk_001", "fail"),
+    "growth-goal-needs-review.md": ("eval_growth_goal_replaced_by_risk_001", "needs_review"),
+}
+
 
 def run_check(args: Any) -> int:
     root = find_project_root(Path(args.root) if args.root else None)
@@ -34,6 +49,7 @@ def run_check(args: Any) -> int:
     errors.extend(check_public_registry(root))
     errors.extend(check_local_loop_assets(root))
     errors.extend(check_public_candidate_fixtures(root))
+    errors.extend(check_eval_response_fixtures(root))
 
     if errors:
         print("local loop checks failed:")
@@ -42,7 +58,7 @@ def run_check(args: Any) -> int:
         return 1
 
     print("local loop checks passed")
-    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures")
+    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures")
     print("mode: read-only; no rules, profiles, datasets, casebooks, candidates, suggestions, or submissions were modified")
     return 0
 
@@ -128,6 +144,50 @@ def check_public_candidate_fixtures(root: Path) -> list[str]:
         outcome = evaluate_fixture(base / fixture)
         if outcome == "unexpected_error":
             errors.append(f"{base / fixture}: fixture could not be evaluated")
+    return errors
+
+
+def check_eval_response_fixtures(root: Path) -> list[str]:
+    dataset_path = root / "datasets" / "collaboration-quality.v0.1.yaml"
+    fixture_dir = root / "examples" / "eval-response-fixtures"
+    if not dataset_path.exists():
+        return [f"{dataset_path}: missing eval dataset"]
+    if not fixture_dir.exists():
+        return [f"{fixture_dir}: missing eval response fixtures"]
+
+    dataset = load_yaml(dataset_path)
+    manifest_path = fixture_dir / "manifest.yaml"
+    errors: list[str] = []
+    expected = EXPECTED_EVAL_FIXTURES
+    if manifest_path.exists():
+        manifest = load_yaml(manifest_path)
+        expected = {
+            item["response"]: (item["eval_id"], item["expected_status"])
+            for item in manifest.get("fixtures", [])
+        }
+    for filename, (eval_id, expected_status) in expected.items():
+        path = fixture_dir / filename
+        if not path.exists():
+            errors.append(f"{path}: missing eval response fixture")
+            continue
+        response = path.read_text(encoding="utf-8")
+        results = evaluate_dataset(dataset, response, eval_id)
+        if len(results) != 1:
+            errors.append(f"{path}: expected one result for {eval_id}, got {len(results)}")
+            continue
+        status = results[0].get("result", {}).get("status")
+        if status != expected_status:
+            errors.append(f"{path}: expected {expected_status}, got {status}")
+        if not results[0].get("evidence") and expected_status == "pass":
+            errors.append(f"{path}: pass fixture produced no evidence mapping")
+        if expected_status == "pass" and results[0].get("failure_codes"):
+            errors.append(f"{path}: pass fixture produced failure codes: {results[0].get('failure_codes')}")
+        if expected_status == "pass" and results[0].get("observations", {}).get("violated_must_not"):
+            errors.append(f"{path}: pass fixture violated must_not observations")
+        if expected_status == "pass" and results[0].get("observations", {}).get("blocking_failures"):
+            errors.append(f"{path}: pass fixture produced blocking failures")
+        if expected_status != "pass" and not results[0].get("failure_codes"):
+            errors.append(f"{path}: failing fixture produced no failure codes")
     return errors
 
 

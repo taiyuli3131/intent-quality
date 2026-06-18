@@ -51,3 +51,21 @@ The next candidate should be accepted only when:
 - Public samples remain untrusted until locally checked and user accepted.
 - Eval improvements do not pretend to be a complete semantic judge unless the implementation supports that claim.
 - Documentation distinguishes implemented v0.1 behavior from planned v0.2 work.
+
+## v0.2-beta Scorer Baseline
+
+Status: `v0.2-beta scorer baseline accepted`
+
+Date: 2026-06-18
+
+Baseline file: `.intent-quality/eval-results/v0.2-beta-scorer-baseline.yaml`
+
+Scope: eval scorer reliability regression fixtures only.
+
+Acceptance notes:
+
+- The five core risk fixtures cover authorization boundary, context pollution, advice-only premature execution, unverified premise handling, and growth-goal preservation.
+- Pass, fail, and hard `needs_review` response fixtures match expected statuses.
+- Pass fixtures produce evidence without failure codes, forbidden observations, or blocking failures.
+- Failing fixtures produce stable failure codes and evidence mapping.
+- The scorer remains a heuristic marker-based regression scorer, not a complete semantic evaluator.
