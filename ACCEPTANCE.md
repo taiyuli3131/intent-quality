@@ -52,11 +52,33 @@ The next candidate should be accepted only when:
 - Eval improvements do not pretend to be a complete semantic judge unless the implementation supports that claim.
 - Documentation distinguishes implemented v0.1 behavior from planned v0.2 work.
 
+## v0.2-alpha Public Sync Baseline
+
+Status: `v0.2-alpha public sync baseline accepted`
+
+Date: 2026-06-18
+
+Commit: `1dcc977`
+
+Scope: public sync reliability hardening only.
+
+Acceptance notes:
+
+- Public index validation blocks unsafe sync policy hints, including automatic candidate download, rule application, profile mutation, dataset/casebook adoption, rubric override, and contribution setting changes.
+- Candidate fetch verifies `content_sha256` before caching or suggestion generation.
+- Public candidate gate blocks invalid YAML, missing required fields, schema/rubric mismatch, privacy flags, poisoning flags, and prompt-injection or auto-apply language.
+- Good public candidate fixtures can become untrusted external candidates and pending suggestions.
+- Failed public candidate fixtures are blocked before adoption suggestions are produced.
+- Generated suggestions remain pending, reversible, previewable, and `requires_user_confirmation: true`.
+- The alpha baseline does not add automatic acceptance, automatic local mutation, or public upload.
+
 ## v0.2-beta Scorer Baseline
 
 Status: `v0.2-beta scorer baseline accepted`
 
 Date: 2026-06-18
+
+Commit: `ee050c9`
 
 Baseline file: `.intent-quality/eval-results/v0.2-beta-scorer-baseline.yaml`
 
@@ -68,4 +90,14 @@ Acceptance notes:
 - Pass, fail, and hard `needs_review` response fixtures match expected statuses.
 - Pass fixtures produce evidence without failure codes, forbidden observations, or blocking failures.
 - Failing fixtures produce stable failure codes and evidence mapping.
+- The hard fixture produces `needs_review` rather than a false pass or automatic failure when marker-based scoring cannot judge the case confidently enough.
 - The scorer remains a heuristic marker-based regression scorer, not a complete semantic evaluator.
+
+## v0.2 Candidate Readiness Notes
+
+The accepted alpha and beta baselines cover the two main v0.2 reliability goals:
+
+- safer public sync gates before any public candidate can become a suggestion;
+- more inspectable eval scorer output for regression checks.
+
+Remaining v0.2-candidate review should focus on documentation consistency, fixture coverage visibility, and confirmation language. It should not require platform features, hosted accounts, dashboards, or a full semantic evaluator.

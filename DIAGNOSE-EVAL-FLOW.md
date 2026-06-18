@@ -22,13 +22,13 @@ This loop turns real Agent collaboration issues into reusable cases, tests, lear
 
 v0.1 proves the loop with local files, a narrow CLI, heuristic eval, public index sync, reviewable suggestions, and local contribution packages.
 
-v0.2 should make the same loop more evidence-based:
+v0.2 makes the same loop more reliable without turning the project into a hosted platform:
 
 ```text
 diagnose with stronger evidence
 -> generate better cases and eval samples
--> run inspectable eval scoring
--> fetch/stage checked public candidate content
+-> run inspectable marker-based eval scoring
+-> fetch/stage public candidate content through local gates
 -> generate previewable suggestions
 -> apply only after confirmation
 -> record rollback and learning state
@@ -87,14 +87,22 @@ Eval should report:
 - evidence from the Agent response;
 - suggested rubric, prompt, skill, or case updates.
 
-v0.2 eval should additionally report:
+v0.2 eval additionally reports:
 
 - rubric and dataset versions used for the run;
 - required observations that passed;
+- required observations that were missing;
+- forbidden observations that were detected;
 - blocking failures that were triggered;
+- failure codes;
+- evidence excerpts;
+- matched semantic or violation markers when available;
 - short rationale per scored dimension;
 - stable result IDs for regression comparison;
-- whether the scoring method was heuristic, semantic, human-reviewed, or mixed.
+- whether the scoring method was heuristic, semantic, human-reviewed, or mixed;
+- `needs_review` when a hard case is close to the pass threshold without a blocking failure.
+
+The current v0.2-beta scorer is heuristic and marker-based. It is designed for regression checks and inspectable evidence, not complete semantic evaluation.
 
 Eval samples should be generated naturally from high-quality diagnosis outputs rather than maintained as an unrelated test system.
 
@@ -152,19 +160,35 @@ External samples stay in `external-candidates` until accepted.
 
 The first local closed-loop sample is documented in `docs/public-sync-contribution-minimal-loop.md` and represented under `examples/local-loop/.intent-quality/`.
 
-v0.2 public sync should separate index discovery from candidate content staging:
+v0.2 public sync separates index discovery from candidate content staging:
 
 ```text
 fetch index
+-> validate sync policy hints
 -> select relevant entries
 -> fetch or stage candidate content
--> verify content hash when available
--> run schema, rubric, privacy, poisoning, and relevance checks
--> write external candidate
--> generate suggestion only if checks pass or produce a safe learning note
+-> verify content_sha256
+-> parse YAML
+-> run schema and rubric compatibility checks
+-> run privacy and poisoning checks
+-> require relevance explanation
+-> cache candidate content
+-> write untrusted external candidate
+-> generate pending suggestions only if gates pass
 ```
 
-Candidate content retrieval must not imply trust or adoption.
+Candidate content retrieval must not imply trust or adoption. Failed gates block suggestion generation for adoption-oriented actions. Passing gates still produce only untrusted external candidates and pending suggestions.
+
+The public sync gate blocks:
+
+- unsafe sync policy hints such as `auto_apply_rules: true`;
+- missing required index or case fields;
+- invalid or mismatched `content_sha256`;
+- invalid YAML;
+- schema or rubric mismatch;
+- private paths, URLs, emails, secrets, or other privacy flags;
+- prompt-injection or auto-apply language;
+- candidates without relevance explanation.
 
 ## 6. Public Sample Trust
 
@@ -207,7 +231,7 @@ Suggestion types:
 - eval sample candidate;
 - contribution candidate.
 
-All suggestions that mutate local state require preview and confirmation.
+All suggestions that mutate local state require preview and confirmation. Public sync suggestions start as pending proposals; they must not apply rules, update profiles, add accepted eval cases, add casebook entries, override rubrics, upload contributions, or change contribution settings.
 
 v0.2 suggestions should be reviewable as small local change proposals.
 

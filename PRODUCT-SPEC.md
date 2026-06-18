@@ -54,17 +54,19 @@ v0.1 establishes the local MVP:
 - read-only safety checks;
 - user-facing examples and initial playbook pages.
 
-v0.2 should strengthen the same local-first loop rather than change the product category.
+v0.2 strengthens the same local-first loop rather than changing the product category.
 
-v0.2 priorities:
+v0.2 is a reliability hardening version, not a platformization version. It improves public sync gates and eval scorer output while keeping the product local, file-based, and confirmation-driven.
 
-- improve diagnosis quality with better evidence mapping, confidence explanations, and missing-information handling;
-- upgrade eval output from simple heuristic scoring toward evidence-based scoring that is easier to inspect and rerun;
-- fetch or stage real public candidate content after index discovery, while keeping candidates untrusted by default;
-- make schema and rubric validation stricter and more explainable;
-- add preview/apply/rollback structure for suggestions that may mutate local state;
-- expand contribution privacy review, anonymization notes, allowed-use controls, and withdrawal records;
-- expand playbook coverage for the concepts users see in reports.
+v0.2 reliability scope:
+
+- public sync validates index policy before use;
+- public sync fetches or stages candidate content only through a local gate;
+- candidate content is checked against `content_sha256` when listed by the index;
+- schema, rubric, privacy, poisoning, and relevance checks block unsafe candidates;
+- generated public-sync suggestions remain pending and require confirmation;
+- eval output records stable result IDs, observation groups, failure codes, evidence, marker matches, dimension rationales, and `needs_review` cases;
+- the scorer is explicitly described as heuristic marker-based regression scoring, not complete semantic evaluation.
 
 v0.2 remains out of scope:
 
@@ -73,6 +75,7 @@ v0.2 remains out of scope:
 - automatic public uploads;
 - automatic public-sample adoption;
 - automatic profile, rule, dataset, casebook, rubric, or contribution mutation;
+- a complete semantic evaluator;
 - enterprise governance workflows.
 
 ## 3. Diagnose And Eval
@@ -246,9 +249,14 @@ v0.2 eval outputs should include:
 - the evaluated case and rubric versions;
 - observed evidence from the Agent response;
 - passed and failed required observations;
-- blocking failures;
+- forbidden observations and blocking failures;
+- failure codes;
+- matched semantic markers or violation markers when available;
 - dimension scores with short rationales;
+- `needs_review` when marker-based scoring is insufficient for a hard case near the pass threshold;
 - a stable result file suitable for comparing later runs.
+
+v0.2 scorer language must stay restrained: it can support regression checks and expose evidence, but it must not claim to fully understand intent, replace human review, or provide general semantic evaluation.
 
 The automatic update loop should eventually:
 
@@ -267,3 +275,4 @@ The automatic update loop should eventually:
 - The system should not mutate rules, memory, casebooks, datasets, or contributions without confirmation.
 - The system should be able to explain why a diagnosis or suggestion was made.
 - The user should always be able to skip, reject, edit, or withdraw contribution-related actions.
+- Public candidate adoption, suggestion application, contribution submission, profile/rule changes, and accepted dataset/casebook changes require user confirmation.

@@ -116,19 +116,36 @@ python -m intent_quality.cli check
 
 The MVP keeps mutating behavior narrow. `diagnose` writes only diagnosis reports under `.intent-quality/diagnoses/`. `public fetch` writes only the public index and fetch metadata. `public suggest` writes external candidates and pending suggestions only. `contribute create` writes a local pending contribution package only. `check`, `eval`, `suggest list`, and `contribute review` are read-only. No profile, rules, accepted dataset, casebook, rubric, public upload, or contribution state change is applied automatically.
 
-## v0.2 Roadmap
+## v0.2 Reliability Baseline
 
-v0.1 proves the local loop. v0.2 should make that loop more inspectable, stricter, and more useful on real Agent work.
+v0.2 is a reliability hardening release for the local loop. It is not a platformization release.
 
-Planned focus:
+Current v0.2 baselines:
 
-- stronger diagnosis evidence, confidence, and missing-information handling;
-- eval results with explicit evidence mapping, blocking failures, dimension rationales, and regression-friendly result files;
-- real public candidate content staging after index discovery, with hash checks where available;
-- stricter schema, rubric, privacy, poisoning, and relevance checks before suggestions are generated;
-- suggestion preview/apply/rollback records for any local mutation;
-- clearer contribution privacy review, allowed-use controls, submission gates, and withdrawal records;
-- more playbook pages for response mode, context pollution, premise validation, public sample trust, diagnose versus eval, suggestions, and contribution privacy.
+- `v0.2-alpha`: public sync reliability hardening, baselined in commit `1dcc977`;
+- `v0.2-beta`: eval scorer reliability hardening, baselined in commit `ee050c9`.
+
+Public sync now has a stricter gate before suggestions are generated:
+
+- fetch the public index;
+- fetch or stage matching candidate content;
+- verify `content_sha256`;
+- reject invalid YAML or schema mismatches;
+- block privacy and poisoning risks;
+- require relevance explanation;
+- write only untrusted external candidates and pending suggestions.
+
+Eval scoring now records more inspectable regression output:
+
+- stable result IDs;
+- `pass`, `fail`, and `needs_review` status;
+- passed, missing, forbidden, and blocking observations;
+- failure codes;
+- evidence excerpts and matched markers;
+- dimension rationales;
+- scorer limitations.
+
+The scorer remains a heuristic marker-based regression scorer. It is useful for repeatable collaboration-quality checks, but it is not a complete semantic evaluator.
 
 v0.2 does not change the safety model:
 
@@ -137,6 +154,8 @@ v0.2 does not change the safety model:
 - no automatic public uploads;
 - no automatic public-sample adoption;
 - no automatic profile, rule, dataset, casebook, rubric, or contribution mutation.
+
+All local adoption, rule/profile changes, accepted dataset or casebook changes, and contribution actions still require user confirmation.
 
 ## Diagnose Versus Eval
 
