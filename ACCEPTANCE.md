@@ -205,3 +205,21 @@ Acceptance notes:
 - `intent-quality check` validates playbook links and remains read-only.
 - The learning layer stays compact and local; it is not a generic AI course or platform documentation system.
 - The baseline does not apply profile/rule/dataset/casebook/rubric/contribution/public-sample changes.
+
+## v0.3 P1 Local Profile Memory Baseline
+
+Status: `v0.3 P1 Local Profile Memory accepted baseline`
+
+Date: 2026-06-18
+
+Scope: diagnosis-derived local profile memory suggestions only; no confirmed profile writes, global memory, cross-project memory, broad personal memory, cloud sync, platformization, or automatic mutation.
+
+Acceptance notes:
+
+- Profile memory output is represented as pending `profile_update` suggestions only.
+- Profile suggestions are project-local, evidence-backed, impact-scoped, rollback-described, and explicitly `requires_user_confirmation: true`.
+- Stale-memory warnings are represented as reviewable suggestions and must not become confirmed preferences automatically.
+- Unsafe profile memory fixtures block private information, global/cross-project memory, and auto-apply attempts.
+- `intent-quality check` validates profile memory fixtures and remains read-only.
+- `python -m compileall intent_quality` passes.
+- The baseline does not modify profiles, rules, datasets, casebooks, rubrics, contributions, candidates, suggestions, or submissions during checks.

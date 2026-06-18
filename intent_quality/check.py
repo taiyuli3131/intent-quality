@@ -11,8 +11,10 @@ from .schemas import (
     load_yaml_bytes,
     validate_contribution_package,
     validate_external_candidate,
+    validate_profile_update_suggestion,
     validate_public_case,
     validate_public_index,
+    validate_suggestion,
     validate_suggestions_file,
 )
 from .eval import evaluate_dataset
@@ -43,6 +45,14 @@ EXPECTED_EVAL_FIXTURES = {
     "growth-goal-needs-review.md": ("eval_growth_goal_replaced_by_risk_001", "needs_review"),
 }
 
+EXPECTED_PROFILE_MEMORY_FIXTURES = {
+    "valid-profile-update.yaml": "pass",
+    "stale-warning.yaml": "pass",
+    "unsafe-private.yaml": "privacy",
+    "unsafe-auto-apply.yaml": "auto_apply",
+    "unsafe-global-memory.yaml": "scope",
+}
+
 
 def run_check(args: Any) -> int:
     root = find_project_root(Path(args.root) if args.root else None)
@@ -53,6 +63,7 @@ def run_check(args: Any) -> int:
     errors.extend(check_public_candidate_fixtures(root))
     errors.extend(check_eval_response_fixtures(root))
     errors.extend(check_diagnosis_quality_fixtures(root))
+    errors.extend(check_profile_memory_fixtures(root))
     errors.extend(check_playbook_pages(root))
 
     if errors:
@@ -62,7 +73,7 @@ def run_check(args: Any) -> int:
         return 1
 
     print("local loop checks passed")
-    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures, diagnosis quality fixtures, playbook links")
+    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures, diagnosis quality fixtures, profile memory fixtures, playbook links")
     print("mode: read-only; no rules, profiles, datasets, casebooks, candidates, suggestions, or submissions were modified")
     return 0
 
@@ -247,6 +258,36 @@ def check_diagnosis_quality_fixtures(root: Path) -> list[str]:
     return errors
 
 
+def check_profile_memory_fixtures(root: Path) -> list[str]:
+    fixture_dir = root / "examples" / "profile-memory-fixtures"
+    manifest_path = fixture_dir / "manifest.yaml"
+    if not manifest_path.exists():
+        return [f"{manifest_path}: missing profile memory fixture manifest"]
+
+    manifest = load_yaml(manifest_path)
+    errors: list[str] = []
+    before = protected_snapshot(root)
+    expected = {
+        item["fixture"]: item["expected_status"]
+        for item in manifest.get("fixtures", [])
+    } or EXPECTED_PROFILE_MEMORY_FIXTURES
+
+    for filename, expected_status in expected.items():
+        path = fixture_dir / filename
+        if not path.exists():
+            errors.append(f"{path}: missing profile memory fixture")
+            continue
+        suggestion = load_yaml(path)
+        outcome = evaluate_profile_memory_fixture(suggestion, str(path))
+        if outcome != expected_status:
+            errors.append(f"{path}: expected {expected_status}, got {outcome}")
+
+    after = protected_snapshot(root)
+    if before != after:
+        errors.append("profile memory fixture check modified protected local assets")
+    return errors
+
+
 def check_playbook_pages(root: Path) -> list[str]:
     required = [
         "authorization-boundary.md",
@@ -353,9 +394,51 @@ def validate_diagnosis_quality(data: dict[str, Any], label: str, expected: dict[
             errors.append(f"{label}: candidate {candidate.get('type')} must not write local assets")
         if candidate.get("requires_user_confirmation") is not True:
             errors.append(f"{label}: candidate {candidate.get('type')} must require confirmation")
+        if candidate.get("artifact_type") == "profile_update":
+            errors.extend(validate_diagnosis_profile_candidate(candidate, label))
     if not data.get("learning_feedback", {}).get("concepts"):
         errors.append(f"{label}: missing learning concepts")
     return errors
+
+
+def validate_diagnosis_profile_candidate(candidate: dict[str, Any], label: str) -> list[str]:
+    errors: list[str] = []
+    if candidate.get("profile_scope") != "project":
+        errors.append(f"{label}: profile_update candidate profile_scope must be project")
+    for field in ["evidence", "impact_scope", "confirmation_state", "rollback_plan", "stale_memory_warning"]:
+        if field not in candidate:
+            errors.append(f"{label}: profile_update candidate missing {field}")
+    confirmation = candidate.get("confirmation_state", {})
+    if confirmation.get("status") != "awaiting_user_confirmation":
+        errors.append(f"{label}: profile_update candidate must await user confirmation")
+    if confirmation.get("confirmed_at") is not None:
+        errors.append(f"{label}: profile_update candidate confirmed_at must be null")
+    if candidate.get("impact_scope", {}).get("local_files") != [".intent-quality/profile/project-profile.yaml"]:
+        errors.append(f"{label}: profile_update candidate must target only the project profile")
+    stale_warning = candidate.get("stale_memory_warning", {})
+    if stale_warning.get("requires_user_review") is not True:
+        errors.append(f"{label}: profile_update stale warning must require review")
+    rollback = candidate.get("rollback_plan", {})
+    if rollback.get("reversible") is not True:
+        errors.append(f"{label}: profile_update rollback must be reversible")
+    preview = candidate.get("preview", {})
+    if preview.get("pending_only") is not True or preview.get("requires_user_confirmation") is not True:
+        errors.append(f"{label}: profile_update preview must be pending and confirmation-gated")
+    return errors
+
+
+def evaluate_profile_memory_fixture(suggestion: dict[str, Any], label: str) -> str:
+    errors = validate_suggestion(suggestion, label)
+    if not errors:
+        return "pass"
+    blob = "\n".join(errors)
+    if "private identifiers" in blob:
+        return "privacy"
+    if "auto-apply" in blob or "confirmation-bypass" in blob or "auto_apply" in blob:
+        return "auto_apply"
+    if "global" in blob or "cross-project" in blob or "broad personal memory" in blob or "profile_scope" in blob:
+        return "scope"
+    return "schema"
 
 
 def validate_learning_playbook_links(data: dict[str, Any], label: str, root: Path) -> list[str]:

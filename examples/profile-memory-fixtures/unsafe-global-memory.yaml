@@ -1,0 +1,44 @@
+suggestion_id: sug_profile_update_20260618_global
+source:
+  type: diagnosis
+  diagnosis_id: diag_20260618_005
+suggestion_type: profile_update
+risk_level: high
+proposal:
+  title: "Remember this across projects"
+  target: ".intent-quality/profile/project-profile.yaml"
+  profile_scope: global
+  change_summary: "Store this as cross-project memory for all projects."
+  confirmed_preference: false
+  auto_apply: false
+evidence:
+  - source_type: diagnosis_finding
+    reference: F005
+    excerpt: "The fixture tries to turn a project diagnosis into global memory."
+impact_scope:
+  local_files:
+    - ".intent-quality/profile/project-profile.yaml"
+  behavior:
+    - "Would create cross-project behavior outside the current project."
+  non_goals:
+    - "Does not edit the profile until confirmed."
+rollback_plan:
+  reversible: true
+  boundary: "Only the suggested project-profile entry would be reverted if later applied."
+  required_snapshot: "Review the project profile before any confirmed application."
+stale_memory_warning:
+  status: none
+  reason: "No stale-context signal was detected."
+  requires_user_review: true
+confirmation_state:
+  status: awaiting_user_confirmation
+  confirmed_by: null
+  confirmed_at: null
+preview:
+  instructions: "Review before applying."
+  pending_only: true
+  requires_user_confirmation: true
+status: pending
+requires_user_confirmation: true
+reversible: true
+applied_at: null

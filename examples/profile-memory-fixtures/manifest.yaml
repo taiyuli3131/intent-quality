@@ -1,0 +1,14 @@
+fixture_set_id: profile_memory_fixtures_v0_3_p1
+schema_version: 0.3.0
+note: "Fixtures validate diagnosis-derived, project-local profile_update suggestions only."
+fixtures:
+  - fixture: valid-profile-update.yaml
+    expected_status: pass
+  - fixture: stale-warning.yaml
+    expected_status: pass
+  - fixture: unsafe-private.yaml
+    expected_status: privacy
+  - fixture: unsafe-auto-apply.yaml
+    expected_status: auto_apply
+  - fixture: unsafe-global-memory.yaml
+    expected_status: scope

@@ -55,6 +55,8 @@ Suggestions are reviewable local proposals. They may recommend a learning note, 
 
 Suggestions do not mutate local state by default. Anything that changes rules, profiles, datasets, casebooks, or contribution status requires user confirmation.
 
+Profile memory is deliberately narrow in v0.3 P1: diagnosis-derived `profile_update` suggestions are pending, project-local, evidence-backed, rollback-described, and explicitly awaiting user confirmation. They must not become confirmed preferences, global memory, cross-project memory, broad personal memory, or automatic profile edits.
+
 See [examples/suggestion-display.md](examples/suggestion-display.md) for a suggestion display sample.
 
 ## Contribution Is Optional
@@ -114,7 +116,7 @@ python -m intent_quality.cli contribute review
 python -m intent_quality.cli check
 ```
 
-The MVP keeps mutating behavior narrow. `diagnose` writes only diagnosis reports under `.intent-quality/diagnoses/`. `public fetch` writes only the public index and fetch metadata. `public suggest` writes external candidates and pending suggestions only. `contribute create` writes a local pending contribution package only. `check`, `eval`, `suggest list`, and `contribute review` are read-only. No profile, rules, accepted dataset, casebook, rubric, public upload, or contribution state change is applied automatically.
+The MVP keeps mutating behavior narrow. `diagnose` writes only diagnosis reports under `.intent-quality/diagnoses/`. `public fetch` writes only the public index and fetch metadata. `public suggest` writes external candidates and pending suggestions only. `contribute create` writes a local pending contribution package only. `check`, `eval`, `suggest list`, and `contribute review` are read-only. No profile, rules, accepted dataset, casebook, rubric, public upload, contribution state change, or profile memory is applied automatically.
 
 ## v0.2 Reliability Baseline
 

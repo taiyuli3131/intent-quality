@@ -484,15 +484,68 @@ def playbook_path_for(concept: str) -> str:
 
 def generated_candidates(primary: str, detected: list[str], findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
     source_findings = [finding["id"] for finding in findings]
+    candidates: list[dict[str, Any]] = []
+    profile_evidence = [
+        {
+            "source_type": "diagnosis_finding",
+            "reference": finding["id"],
+            "excerpt": finding.get("conclusion", ""),
+        }
+        for finding in findings
+    ]
+    candidates.append(
+        {
+            "type": "profile",
+            "artifact_type": "profile_update",
+            "status": "preview_only",
+            "source_findings": list(source_findings),
+            "primary_issue": primary,
+            "profile_scope": "project",
+            "requires_user_confirmation": True,
+            "auto_apply": False,
+            "writes_local_asset": False,
+            "confirmation_state": {
+                "status": "awaiting_user_confirmation",
+                "confirmed_by": None,
+                "confirmed_at": None,
+            },
+            "evidence": profile_evidence,
+            "impact_scope": {
+                "local_files": [".intent-quality/profile/project-profile.yaml"],
+                "behavior": [
+                    f"Future project-local collaboration can treat {primary} as a reviewable pattern."
+                ],
+                "non_goals": [
+                    "Does not edit the project profile until the user explicitly applies it.",
+                    "Does not create global, cross-project, or broad personal memory.",
+                ],
+            },
+            "rollback_plan": {
+                "reversible": True,
+                "boundary": "Only the proposed project-profile change would be in scope if later applied.",
+                "required_snapshot": "Review the project profile before any confirmed application.",
+            },
+            "stale_memory_warning": {
+                "status": "possible" if "context_pollution" in detected else "none",
+                "reason": "Diagnosis-derived profile updates can become stale if old context no longer applies.",
+                "requires_user_review": True,
+            },
+            "preview": {
+                "title": f"profile_update candidate for {primary}",
+                "summary": "Pending project-local profile suggestion derived from diagnosis evidence.",
+                "included_dimensions": list(detected),
+                "pending_only": True,
+                "requires_user_confirmation": True,
+            },
+        }
+    )
     base = [
         ("case", "casebook_entry", "Reviewable case draft from diagnosis findings."),
         ("eval", "eval_sample", "Reviewable eval sample draft from expected versus actual behavior."),
-        ("profile", "profile_update", "Optional profile suggestion for recurring collaboration behavior."),
         ("rule", "rule_update", "Optional local rule suggestion for future pre-action prevention."),
         ("contribution", "contribution_package", "Optional anonymized contribution package draft."),
         ("public_sample", "public_candidate", "Optional public-sample relevance note only."),
     ]
-    candidates = []
     for candidate_type, artifact_type, summary in base:
         candidates.append(
             {

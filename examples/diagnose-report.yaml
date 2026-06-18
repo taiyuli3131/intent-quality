@@ -283,17 +283,56 @@ generated_candidates:
   - F003
   - F004
   primary_issue: authorization_boundary
+  profile_scope: project
   requires_user_confirmation: true
   auto_apply: false
   writes_local_asset: false
+  confirmation_state:
+    status: awaiting_user_confirmation
+    confirmed_by: null
+    confirmed_at: null
+  evidence:
+  - source_type: diagnosis_finding
+    reference: F001
+    excerpt: Authorization boundary may have been crossed or needs explicit confirmation.
+  - source_type: diagnosis_finding
+    reference: F002
+    excerpt: The requested response mode may not match the Agent action.
+  - source_type: diagnosis_finding
+    reference: F003
+    excerpt: Prior or unrelated context may have affected the current task.
+  - source_type: diagnosis_finding
+    reference: F004
+    excerpt: A decision-critical premise may need validation before use.
+  impact_scope:
+    local_files:
+    - .intent-quality/profile/project-profile.yaml
+    behavior:
+    - Future project-local collaboration can treat authorization_boundary as a reviewable
+      pattern.
+    non_goals:
+    - Does not edit the project profile until the user explicitly applies it.
+    - Does not create global, cross-project, or broad personal memory.
+  rollback_plan:
+    reversible: true
+    boundary: Only the proposed project-profile change would be in scope if later
+      applied.
+    required_snapshot: Review the project profile before any confirmed application.
+  stale_memory_warning:
+    status: possible
+    reason: Diagnosis-derived profile updates can become stale if old context no
+      longer applies.
+    requires_user_review: true
   preview:
     title: profile_update candidate for authorization_boundary
-    summary: Optional profile suggestion for recurring collaboration behavior.
+    summary: Pending project-local profile suggestion derived from diagnosis evidence.
     included_dimensions:
     - authorization_boundary
     - response_mode_mismatch
     - context_pollution
     - premise_validation
+    pending_only: true
+    requires_user_confirmation: true
 - type: rule
   artifact_type: rule_update
   status: preview_only

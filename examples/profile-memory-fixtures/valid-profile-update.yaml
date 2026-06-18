@@ -1,0 +1,47 @@
+suggestion_id: sug_profile_update_20260618_001
+source:
+  type: diagnosis
+  diagnosis_id: diag_20260618_001
+suggestion_type: profile_update
+risk_level: medium
+proposal:
+  title: "Keep direction discussions pending until edit confirmation"
+  target: ".intent-quality/profile/project-profile.yaml"
+  profile_scope: project
+  change_summary: "Suggest a project-local collaboration preference that direction discussions remain discussion-only until the user explicitly authorizes edits."
+  confirmed_preference: false
+  auto_apply: false
+evidence:
+  - source_type: diagnosis_finding
+    reference: F001
+    excerpt: "The diagnosis found direction discussion language followed by file-update behavior."
+impact_scope:
+  local_files:
+    - ".intent-quality/profile/project-profile.yaml"
+  behavior:
+    - "Future project work can ask for explicit edit confirmation before changing files during direction discussions."
+  non_goals:
+    - "Does not edit the project profile until the user explicitly applies it."
+    - "Does not create broad personal memory."
+rollback_plan:
+  reversible: true
+  boundary: "Only the suggested project-profile entry would be reverted if later applied."
+  required_snapshot: "Review the project profile before any confirmed application."
+stale_memory_warning:
+  status: none
+  reason: "The diagnosis evidence is current for this project, but still requires review before persistence."
+  requires_user_review: true
+confirmation_state:
+  status: awaiting_user_confirmation
+  confirmed_by: null
+  confirmed_at: null
+preview:
+  instructions: "Review evidence, impact scope, stale warning, and rollback plan before applying."
+  pending_only: true
+  requires_user_confirmation: true
+rationale:
+  - "A diagnosis-derived pattern may be useful for this project if the user confirms it."
+status: pending
+requires_user_confirmation: true
+reversible: true
+applied_at: null

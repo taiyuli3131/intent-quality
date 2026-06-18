@@ -174,11 +174,21 @@ def render_diagnosis_markdown(data: dict[str, Any]) -> str:
         preview = candidate.get("preview", {})
         if preview:
             included = ", ".join(preview.get("included_dimensions", [])) or "none"
+            extra = ""
+            if candidate.get("artifact_type") == "profile_update":
+                stale = candidate.get("stale_memory_warning", {})
+                rollback = candidate.get("rollback_plan", {})
+                extra = (
+                    f" Scope: `{candidate.get('profile_scope', 'unknown')}`. "
+                    f"Confirmation: `{candidate.get('confirmation_state', {}).get('status', 'unknown')}`. "
+                    f"Stale warning: `{stale.get('status', 'unknown')}`. "
+                    f"Rollback reversible: `{str(rollback.get('reversible', False)).lower()}`."
+                )
             preview_lines.append(
                 f"- `{candidate.get('type', '')}`/`{candidate.get('artifact_type', '')}`: "
                 f"{preview.get('title', 'Untitled preview')} - "
                 f"{preview.get('summary', 'No summary provided.')} "
-                f"Included dimensions: {included}."
+                f"Included dimensions: {included}.{extra}"
             )
     if preview_lines:
         lines.extend(["", "Preview details:"])

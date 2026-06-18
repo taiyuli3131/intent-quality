@@ -7,7 +7,7 @@ suggestion_id: sug_20260616_001
 source:
   type: diagnosis
   diagnosis_id: diag_20260616_001
-suggestion_type: profile_rule
+suggestion_type: profile_update
 risk_level: medium
 requires_user_confirmation: true
 reversible: true
@@ -38,6 +38,18 @@ Change summary:
 For product direction, roadmap, positioning, or planning discussions, require explicit user confirmation before file writes.
 ```
 
+Profile scope:
+
+```text
+project
+```
+
+Confirmation state:
+
+```text
+awaiting_user_confirmation
+```
+
 Example rule candidate:
 
 ```yaml
@@ -54,6 +66,20 @@ Future Agents using this profile should:
 - ask before creating, editing, or deleting files;
 - distinguish proposals from applied changes.
 
+### Stale Memory Warning
+
+```text
+status: possible
+reason: Diagnosis-derived profile updates can become stale if old context no longer applies.
+requires_user_review: true
+```
+
+### Rollback Plan
+
+```text
+Only the proposed project-profile entry is in scope for rollback if the user later applies it.
+```
+
 ### What It Will Not Do
 
 Applying this suggestion will not:
@@ -63,6 +89,7 @@ Applying this suggestion will not:
 - add a public sample to local assets;
 - change contribution settings;
 - prevent the user from explicitly asking for edits.
+- create global, cross-project, or broad personal memory.
 
 ### Review Actions
 

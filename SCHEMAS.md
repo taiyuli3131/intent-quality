@@ -408,7 +408,7 @@ Profiles should only store Agent collaboration behavior and preferences.
 
 ```yaml
 schema_version: 0.1.0
-profile_scope: project # none | project | collaboration | global
+profile_scope: project # v0.3 P1 local profile memory only allows project scope
 project_name: intent-quality
 
 preferences:
@@ -641,6 +641,55 @@ requires_user_confirmation: true
 reversible: true
 applied_at: null
 ```
+
+v0.3 P1 adds diagnosis-derived local profile memory as pending `profile_update` suggestions only. A `profile_update` must be project-local, must not represent a confirmed preference, and must not apply or write any profile change by itself.
+
+```yaml
+suggestion_type: profile_update
+source:
+  type: diagnosis
+  diagnosis_id: diag_20260618_001
+proposal:
+  title: "Keep direction discussions pending until edit confirmation"
+  target: ".intent-quality/profile/project-profile.yaml"
+  profile_scope: project
+  change_summary: "Suggest a project-local collaboration preference."
+  confirmed_preference: false
+  auto_apply: false
+evidence:
+  - source_type: diagnosis_finding
+    reference: F001
+    excerpt: "The diagnosis found direction discussion language followed by file-update behavior."
+impact_scope:
+  local_files:
+    - ".intent-quality/profile/project-profile.yaml"
+  behavior:
+    - "Future project work can ask for explicit edit confirmation before changing files during direction discussions."
+  non_goals:
+    - "Does not edit the project profile until the user explicitly applies it."
+    - "Does not create global, cross-project, or broad personal memory."
+rollback_plan:
+  reversible: true
+  boundary: "Only the suggested project-profile entry would be reverted if later applied."
+  required_snapshot: "Review the project profile before any confirmed application."
+stale_memory_warning:
+  status: possible # none | possible | present
+  reason: "Diagnosis-derived profile updates can become stale if old context no longer applies."
+  requires_user_review: true
+confirmation_state:
+  status: awaiting_user_confirmation
+  confirmed_by: null
+  confirmed_at: null
+preview:
+  pending_only: true
+  requires_user_confirmation: true
+status: pending
+requires_user_confirmation: true
+reversible: true
+applied_at: null
+```
+
+Blocked `profile_update` suggestions include private identifiers or paths, automatic application, confirmation bypass, global or cross-project memory, and broad personal memory. The checker validates fixtures for those cases and snapshots protected local assets before and after the read-only check.
 
 v0.2 may store each pending suggestion as an individual file so preview, dismissal, and application history can be audited independently. The aggregate `pending-suggestions.yaml` may remain as a compatibility view.
 

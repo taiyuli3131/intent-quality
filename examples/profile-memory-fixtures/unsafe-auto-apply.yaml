@@ -1,0 +1,44 @@
+suggestion_id: sug_profile_update_20260618_auto
+source:
+  type: diagnosis
+  diagnosis_id: diag_20260618_004
+suggestion_type: profile_update
+risk_level: high
+proposal:
+  title: "Auto-apply direction preference"
+  target: ".intent-quality/profile/project-profile.yaml"
+  profile_scope: project
+  change_summary: "Apply this profile preference immediately."
+  confirmed_preference: false
+  auto_apply: true
+evidence:
+  - source_type: diagnosis_finding
+    reference: F004
+    excerpt: "The fixture tries to bypass pending-only review."
+impact_scope:
+  local_files:
+    - ".intent-quality/profile/project-profile.yaml"
+  behavior:
+    - "Would automatically modify future profile behavior."
+  non_goals:
+    - "Does not edit the profile until confirmed."
+rollback_plan:
+  reversible: true
+  boundary: "Only the suggested project-profile entry would be reverted if later applied."
+  required_snapshot: "Review the project profile before any confirmed application."
+stale_memory_warning:
+  status: none
+  reason: "No stale-context signal was detected."
+  requires_user_review: true
+confirmation_state:
+  status: awaiting_user_confirmation
+  confirmed_by: null
+  confirmed_at: null
+preview:
+  instructions: "Review before applying."
+  pending_only: true
+  requires_user_confirmation: true
+status: pending
+requires_user_confirmation: true
+reversible: true
+applied_at: null

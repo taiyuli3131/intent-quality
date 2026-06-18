@@ -40,6 +40,10 @@ INJECTION_RE = re.compile(
     re.IGNORECASE,
 )
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
+PROJECT_PROFILE_TARGETS = {
+    ".intent-quality/profile/project-profile.yaml",
+    "profile/project-profile.yaml",
+}
 
 
 def load_yaml(path: Path) -> Any:
@@ -258,6 +262,72 @@ def validate_suggestion(suggestion: dict[str, Any], label: str = "suggestion") -
         errors.append(f"{label}: confirmation_state.status must be awaiting_user_confirmation")
     if confirmation.get("confirmed_at") is not None:
         errors.append(f"{label}: confirmation_state.confirmed_at must start null")
+    if suggestion.get("suggestion_type") == "profile_update":
+        errors.extend(validate_profile_update_suggestion(suggestion, label))
+    return errors
+
+
+def validate_profile_update_suggestion(suggestion: dict[str, Any], label: str = "profile update suggestion") -> list[str]:
+    errors: list[str] = []
+    source = suggestion.get("source", {})
+    proposal = suggestion.get("proposal", {})
+    impact = suggestion.get("impact_scope", {})
+    preview = suggestion.get("preview", {})
+    stale_warning = suggestion.get("stale_memory_warning")
+
+    if source.get("type") != "diagnosis":
+        errors.append(f"{label}: profile_update source.type must be diagnosis")
+    if not source.get("diagnosis_id"):
+        errors.append(f"{label}: profile_update source.diagnosis_id is required")
+    if proposal.get("profile_scope") != "project":
+        errors.append(f"{label}: proposal.profile_scope must be project")
+    if proposal.get("target") not in PROJECT_PROFILE_TARGETS:
+        errors.append(f"{label}: proposal.target must be the project profile")
+    if proposal.get("confirmed_preference") is not False:
+        errors.append(f"{label}: proposal.confirmed_preference must be false")
+    if proposal.get("auto_apply") is not False:
+        errors.append(f"{label}: proposal.auto_apply must be false")
+
+    if not isinstance(stale_warning, dict):
+        errors.append(f"{label}: stale_memory_warning is required")
+    else:
+        if stale_warning.get("status") not in {"none", "possible", "present"}:
+            errors.append(f"{label}: stale_memory_warning.status must be none, possible, or present")
+        if "reason" not in stale_warning:
+            errors.append(f"{label}: stale_memory_warning.reason is required")
+        if stale_warning.get("requires_user_review") is not True:
+            errors.append(f"{label}: stale_memory_warning.requires_user_review must be true")
+
+    evidence = suggestion.get("evidence", [])
+    if not any(item.get("source_type") == "diagnosis_finding" for item in evidence if isinstance(item, dict)):
+        errors.append(f"{label}: evidence must include a diagnosis_finding source")
+
+    local_files = impact.get("local_files", [])
+    if local_files != [".intent-quality/profile/project-profile.yaml"]:
+        errors.append(f"{label}: impact_scope.local_files must contain only the project profile")
+    if not impact.get("behavior"):
+        errors.append(f"{label}: impact_scope.behavior must describe behavior impact")
+    non_goals = " ".join(str(item).lower() for item in impact.get("non_goals", []))
+    if "does not edit" not in non_goals and "does not apply" not in non_goals:
+        errors.append(f"{label}: impact_scope.non_goals must say the suggestion does not apply edits")
+
+    if preview.get("pending_only") is not True:
+        errors.append(f"{label}: preview.pending_only must be true")
+    if preview.get("requires_user_confirmation") is not True:
+        errors.append(f"{label}: preview.requires_user_confirmation must be true")
+
+    if privacy_flags(suggestion):
+        errors.append(f"{label}: profile_update must not contain private identifiers or private paths")
+    if poisoning_flags(suggestion):
+        errors.append(f"{label}: profile_update contains unsafe auto-apply or confirmation-bypass language")
+    scope_blob = text_blob(
+        {
+            "proposal": proposal,
+            "behavior": impact.get("behavior", []),
+        }
+    )
+    if re.search(r"\b(global|cross-project|cross project|all projects|personal memory|remember me)\b", scope_blob, re.IGNORECASE):
+        errors.append(f"{label}: profile_update must not create global, cross-project, or broad personal memory")
     return errors
 
 
@@ -390,4 +460,3 @@ def poisoning_flags(value: Any) -> list[str]:
 
 def poisoning_flags_without_paths(value: Any) -> list[str]:
     return poisoning_flags(value)
-

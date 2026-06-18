@@ -30,6 +30,14 @@ def run_list(args: Any) -> int:
         print(f"  target: {proposal.get('target', '<none>')}")
         print(f"  title: {proposal.get('title', '<untitled>')}")
         print(f"  requires confirmation: {item.get('requires_user_confirmation') is True}")
+        if item.get("suggestion_type") == "profile_update":
+            confirmation = item.get("confirmation_state", {})
+            stale = item.get("stale_memory_warning", {})
+            rollback = item.get("rollback_plan", {})
+            print(f"  profile scope: {proposal.get('profile_scope', '<unknown>')}")
+            print(f"  confirmed preference: {proposal.get('confirmed_preference') is True}")
+            print(f"  confirmation state: {confirmation.get('status', '<unknown>')}")
+            print(f"  stale warning: {stale.get('status', '<unknown>')}")
+            print(f"  rollback: reversible={rollback.get('reversible') is True}")
     print("\nmode: list only; no suggestions were applied")
     return 0
-
