@@ -1,7 +1,7 @@
 # Intent Quality Project Info
 
-> Updated: 2026-06-16
-> Status: project overview and document index
+> Updated: 2026-06-18
+> Status: v0.2 candidate accepted; project overview and document index
 
 ## 1. Current Positioning
 
@@ -56,15 +56,52 @@ diagnose real collaboration issues
 
 ## 5. Document Map
 
+- `README.md`: user-facing project entry, CLI overview, v0.2 reliability baseline, and safety model.
+- `ACCEPTANCE.md`: version acceptance record, including v0.1 and v0.2 candidate acceptance.
 - `PRODUCT-SPEC.md`: current product specification, scope, modules, trust boundaries, and first-phase behavior.
 - `SCHEMAS.md`: YAML schemas for diagnosis, case, eval dataset, profile, public candidate, suggestion, and contribution files.
 - `DIAGNOSE-EVAL-FLOW.md`: operational flow for diagnose, eval, public sync, suggestions, contribution, and learning feedback.
+- `docs/release-v0.2.md`: current v0.2 capability summary and non-goals.
+- `docs/v0.3-planning-brief.md`: next-phase planning brief and recommended conversation initialization.
 - `docs/public-sync-contribution-minimal-loop.md`: first local closed-loop design for public sync, external candidate checks, suggestions, contribution packages, anonymization, withdrawal, and prompt controls.
 - `public-registry/`: sample public registry structure and index format.
 - `intent-quality-direction.md`: early English direction record. Keep as historical source; do not use it as the active product spec.
 - `intent-quality-followups.md`: charger ranking case follow-up and rule source. Keep as a concrete case record, not as the overall roadmap.
 
-## 6. Historical Content Integration
+## 6. Current Accepted Baseline
+
+Current accepted tag:
+
+- `v0.2-candidate-accepted`
+
+Baseline commits:
+
+- `cc97e94`: v0.1 candidate accepted.
+- `1dcc977`: v0.2-alpha public sync reliability baseline.
+- `ee050c9`: v0.2-beta scorer reliability baseline.
+- `fb927ff`: v0.2 candidate readiness and product boundary documentation.
+- `1e8b414`: v0.2 candidate acceptance record.
+
+v0.2 is a reliability hardening release, not a platformization release.
+
+Accepted v0.2 capabilities:
+
+- public sync fetches or stages real candidate content before suggestion generation;
+- public sync verifies `content_sha256` and blocks unsafe candidate gates;
+- eval scorer output includes failure codes, evidence mapping, blocking failures, scorer limitations, and `needs_review`;
+- public candidate, suggestion, contribution, profile/rule, dataset, and casebook changes remain user-confirmation gated;
+- `check` remains read-only and covers public sync fixtures plus eval response fixtures.
+
+Accepted v0.2 non-goals:
+
+- hosted accounts;
+- full dashboard;
+- automatic public upload;
+- automatic public-sample adoption;
+- automatic profile/rule/dataset/casebook/rubric/contribution mutation;
+- full semantic evaluation.
+
+## 7. Historical Content Integration
 
 Historical project notes contained several useful principles that are now absorbed into the formal specs:
 
@@ -75,7 +112,20 @@ Historical project notes contained several useful principles that are now absorb
 
 Older historical content that was only a subset of the current charger-ranking follow-up is not retained separately.
 
-## 7. First-Phase Deliverables
+## 8. Next Planning Direction
+
+The next phase should start as v0.3 planning, not immediate implementation.
+
+Recommended v0.3 planning themes:
+
+- improve diagnosis quality and completion-question guidance;
+- expand playbook coverage for concepts users see in reports;
+- explore adapter export as experimental/internal output;
+- consider stronger scorer review paths without making a full semantic evaluator the default;
+- decide whether local profile memory should become more useful while remaining confirmation-gated;
+- keep public registry improvements below platform scope unless explicitly accepted.
+
+## 9. First-Phase Deliverables
 
 The next implementation stage should create the local file base and lightweight tooling around:
 
