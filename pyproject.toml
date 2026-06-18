@@ -12,7 +12,18 @@ license = { text = "MIT" }
 authors = [
   { name = "intent-quality contributors" },
 ]
-keywords = ["agents", "codex", "eval", "diagnosis", "collaboration-quality"]
+keywords = [
+  "agents",
+  "ai-agents",
+  "codex",
+  "llm-evaluation",
+  "agent-evaluation",
+  "intent-diagnosis",
+  "prompt-quality",
+  "collaboration-quality",
+  "local-first",
+  "quality-assurance",
+]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",

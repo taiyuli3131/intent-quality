@@ -4,6 +4,8 @@
 
 It helps you diagnose, test, and improve how an Agent understands your goal, respects authorization boundaries, avoids stale context, validates premises, and chooses the right response mode before taking action.
 
+Use it when you need local-first Agent evaluation, collaboration-quality regression checks, intent diagnosis, prompt quality review, Codex workflow safety, or confirmation-gated learning from real AI coding sessions.
+
 This project is not a hosted eval platform, a prompt collection, or a generic answer grader. It is a practical quality layer for people who use Agents to read projects, edit files, run commands, and carry long-running work.
 
 ## Current Status
@@ -65,6 +67,14 @@ Common failures look like this:
 - a useful failure happened once, but never became a reusable test or habit.
 
 `intent-quality` turns those moments into structured diagnosis, local learning, repeatable eval cases, and optional contribution candidates.
+
+## Use Cases
+
+- Agent collaboration quality checks for Codex and file-capable AI assistants.
+- Local-first LLM eval fixtures for authorization, response mode, stale context, and premise validation failures.
+- Intent diagnosis for conversations where the Agent misunderstood the user's goal or acted too early.
+- Regression testing for prompt, rules, skill, profile, or workflow changes.
+- Privacy-preserving contribution review for reusable collaboration-quality cases.
 
 ## Core Loop
 
