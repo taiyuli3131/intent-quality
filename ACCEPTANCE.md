@@ -265,3 +265,21 @@ Final acceptance notes:
 Recommended tag:
 
 - `v0.3-open-source-foundation`
+
+## v0.3 P1 Eval Review Baseline
+
+Status: `v0.3 P1 Eval Review accepted baseline`
+
+Date: 2026-06-22
+
+Scope: local human-review metadata for `needs_review` eval results only; no default scorer change, LLM-as-judge, adapter export, dashboard, platformization, or automatic mutation.
+
+Acceptance notes:
+
+- `needs_review` eval results include a pending human-review slot.
+- Eval review fixtures cover `confirmed_pass`, `confirmed_fail`, and `remains_uncertain`.
+- Reviewer notes and false-positive / false-negative calibration notes are local metadata only.
+- Eval review records preserve the heuristic scorer limitation language and do not claim full semantic evaluation.
+- Eval review validation confirms records do not apply results, change the default scorer, or mutate datasets, rubrics, profiles, rules, casebooks, suggestions, candidates, contributions, or submissions.
+- `intent-quality check` validates eval review fixtures and remains read-only.
+- `python -m compileall intent_quality`, `python -m intent_quality.cli --help`, and `python -m intent_quality.cli --version` pass.

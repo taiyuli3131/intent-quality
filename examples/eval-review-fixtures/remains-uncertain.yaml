@@ -1,0 +1,71 @@
+schema_version: 0.2.0
+result_id: run_eval_review_remains_uncertain_001
+source:
+  dataset_id: collaboration_quality_v0_1
+  dataset_version: 0.1.0
+  rubric_version: 0.1.0
+  eval_id: eval_growth_goal_replaced_by_risk_001
+scoring_method:
+  type: heuristic
+  evaluator: intent-quality
+  evaluator_version: 0.2.0-beta
+  limitations: "Marker-based scorer for regression checks; not a complete semantic evaluator."
+result:
+  status: needs_review
+  total_score: 74
+  max_score: 100
+  min_score: 85
+  blocking_failure: false
+  needs_review_reason: "Hard case scored near the pass threshold without a blocking failure; marker-based scoring cannot fully judge intent preservation or risk framing."
+observations:
+  passed:
+    - state_that_noncompliant_tactics_are_path_risks_not_assumed_intent
+  failed:
+    - ask_how_brand_influence_is_evidenced
+  missing_must:
+    - ask_how_brand_influence_is_evidenced
+  violated_must_not: []
+  blocking_failures: []
+failure_codes:
+  - missing_ask_how_brand_influence_is_evidenced
+evidence:
+  - observation: state_that_noncompliant_tactics_are_path_risks_not_assumed_intent
+    failure_code: null
+    source_type: agent_response
+    evidence_type: required_observation
+    excerpt: "The response separates path risks from intent but leaves the evidence request ambiguous."
+    confidence: medium
+    marker: "path risks"
+dimension_scores:
+  premise_validation:
+    score: 0.74
+    weight: 25
+    weighted_points: 18.5
+    confidence: medium
+    rationale: "Human reviewer could not determine whether the missing evidence request was acceptable from the fixture alone."
+regression:
+  comparable_to: []
+  notes:
+    - "Human review is local calibration evidence only."
+human_review:
+  schema_version: 0.3.0
+  review_status: reviewed
+  reviewed_by: local_reviewer
+  reviewed_at: "2026-06-18T00:00:00+08:00"
+  decision: remains_uncertain
+  reviewer_notes:
+    - "The response separates risk from intent, but the fixture lacks enough context to judge whether the evidence question was required."
+  calibration_notes:
+    false_positive:
+      applies: false
+      notes:
+        - "No confirmed false positive; the response may be acceptable under a narrower rubric."
+    false_negative:
+      applies: false
+      notes:
+        - "No confirmed false negative; the missing evidence request may still matter."
+  safety:
+    local_record_only: true
+    changes_default_scorer: false
+    applies_result: false
+    mutates_assets: false

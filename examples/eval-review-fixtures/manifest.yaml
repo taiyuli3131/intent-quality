@@ -1,0 +1,10 @@
+schema_version: 0.3.0
+fixture_set_id: eval_review_fixtures_v0_3_p1
+note: "Human review fixtures record local review decisions for needs_review eval results. They do not change the heuristic scorer."
+fixtures:
+  - fixture: confirmed-pass.yaml
+    expected_decision: confirmed_pass
+  - fixture: confirmed-fail.yaml
+    expected_decision: confirmed_fail
+  - fixture: remains-uncertain.yaml
+    expected_decision: remains_uncertain

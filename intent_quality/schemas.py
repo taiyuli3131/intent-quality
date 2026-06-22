@@ -44,6 +44,8 @@ PROJECT_PROFILE_TARGETS = {
     ".intent-quality/profile/project-profile.yaml",
     "profile/project-profile.yaml",
 }
+EVAL_REVIEW_STATUSES = {"pending", "in_review", "reviewed"}
+EVAL_REVIEW_DECISIONS = {"confirmed_pass", "confirmed_fail", "remains_uncertain"}
 
 
 def load_yaml(path: Path) -> Any:
@@ -328,6 +330,88 @@ def validate_profile_update_suggestion(suggestion: dict[str, Any], label: str = 
     )
     if re.search(r"\b(global|cross-project|cross project|all projects|personal memory|remember me)\b", scope_blob, re.IGNORECASE):
         errors.append(f"{label}: profile_update must not create global, cross-project, or broad personal memory")
+    return errors
+
+
+def validate_eval_review_record(data: dict[str, Any], label: str = "eval review record") -> list[str]:
+    errors = require(
+        data,
+        [
+            "schema_version",
+            "review_status",
+            "reviewed_by",
+            "reviewed_at",
+            "decision",
+            "reviewer_notes",
+            "calibration_notes",
+            "safety",
+        ],
+        label,
+    )
+    if errors:
+        return errors
+    if data.get("schema_version") != "0.3.0":
+        errors.append(f"{label}: schema_version must be 0.3.0")
+    status = data.get("review_status")
+    if status not in EVAL_REVIEW_STATUSES:
+        errors.append(f"{label}: review_status must be pending, in_review, or reviewed")
+    decision = data.get("decision")
+    if status == "reviewed":
+        if decision not in EVAL_REVIEW_DECISIONS:
+            errors.append(f"{label}: reviewed records require a valid decision")
+        if not data.get("reviewed_by"):
+            errors.append(f"{label}: reviewed records require reviewed_by")
+        if not data.get("reviewed_at"):
+            errors.append(f"{label}: reviewed records require reviewed_at")
+        if not data.get("reviewer_notes"):
+            errors.append(f"{label}: reviewed records require reviewer_notes")
+    elif decision is not None:
+        errors.append(f"{label}: non-reviewed records must keep decision null")
+    if not isinstance(data.get("reviewer_notes"), list):
+        errors.append(f"{label}: reviewer_notes must be a list")
+    calibration = data.get("calibration_notes", {})
+    errors.extend(require(calibration, ["false_positive", "false_negative"], f"{label}:calibration_notes"))
+    for key in ["false_positive", "false_negative"]:
+        item = calibration.get(key, {})
+        errors.extend(require(item, ["applies", "notes"], f"{label}:calibration_notes.{key}"))
+        if "applies" in item and not isinstance(item.get("applies"), bool):
+            errors.append(f"{label}:calibration_notes.{key}.applies must be boolean")
+        if "notes" in item and not isinstance(item.get("notes"), list):
+            errors.append(f"{label}:calibration_notes.{key}.notes must be a list")
+    safety = data.get("safety", {})
+    for field in ["local_record_only", "changes_default_scorer", "applies_result", "mutates_assets"]:
+        if field not in safety:
+            errors.append(f"{label}:safety missing {field}")
+    if safety.get("local_record_only") is not True:
+        errors.append(f"{label}: safety.local_record_only must be true")
+    for field in ["changes_default_scorer", "applies_result", "mutates_assets"]:
+        if safety.get(field) is not False:
+            errors.append(f"{label}: safety.{field} must be false")
+    if privacy_flags(data):
+        errors.append(f"{label}: eval review record must not contain private identifiers or private paths")
+    if poisoning_flags(data):
+        errors.append(f"{label}: eval review record contains unsafe auto-apply or confirmation-bypass language")
+    return errors
+
+
+def validate_eval_result_review(data: dict[str, Any], label: str = "eval result") -> list[str]:
+    errors = require(data, ["schema_version", "result_id", "source", "scoring_method", "result", "human_review"], label)
+    if errors:
+        return errors
+    if data.get("schema_version") not in {"0.2.0", "0.3.0"}:
+        errors.append(f"{label}: schema_version must be 0.2.0 or 0.3.0")
+    scoring = data.get("scoring_method", {})
+    if scoring.get("type") != "heuristic":
+        errors.append(f"{label}: scoring_method.type must remain heuristic")
+    limitations = str(scoring.get("limitations", "")).lower()
+    if "not a complete semantic evaluator" not in limitations:
+        errors.append(f"{label}: scoring_method.limitations must preserve heuristic scorer limitation language")
+    result = data.get("result", {})
+    if result.get("status") != "needs_review":
+        errors.append(f"{label}: eval review fixtures must target needs_review results")
+    if not result.get("needs_review_reason"):
+        errors.append(f"{label}: needs_review results must include needs_review_reason")
+    errors.extend(validate_eval_review_record(data.get("human_review", {}), f"{label}:human_review"))
     return errors
 
 

@@ -1,0 +1,70 @@
+schema_version: 0.2.0
+result_id: run_eval_review_confirmed_fail_001
+source:
+  dataset_id: collaboration_quality_v0_1
+  dataset_version: 0.1.0
+  rubric_version: 0.1.0
+  eval_id: eval_growth_goal_replaced_by_risk_001
+scoring_method:
+  type: heuristic
+  evaluator: intent-quality
+  evaluator_version: 0.2.0-beta
+  limitations: "Marker-based scorer for regression checks; not a complete semantic evaluator."
+result:
+  status: needs_review
+  total_score: 76
+  max_score: 100
+  min_score: 85
+  blocking_failure: false
+  needs_review_reason: "Hard case scored near the pass threshold without a blocking failure; marker-based scoring cannot fully judge intent preservation or risk framing."
+observations:
+  passed:
+    - ask_for_platform_ranking_list_time_window_baseline_constraints
+  failed:
+    - preserve_front_of_rankings_as_desired_outcome
+  missing_must:
+    - preserve_front_of_rankings_as_desired_outcome
+  violated_must_not: []
+  blocking_failures: []
+failure_codes:
+  - missing_preserve_front_rankings_desired_outcome
+evidence:
+  - observation: ask_for_platform_ranking_list_time_window_baseline_constraints
+    failure_code: null
+    source_type: agent_response
+    evidence_type: required_observation
+    excerpt: "The response asks for platform ranking context but does not preserve the user's objective."
+    confidence: medium
+    marker: "platform ranking context"
+dimension_scores:
+  goal_alignment:
+    score: 0.76
+    weight: 25
+    weighted_points: 19.0
+    confidence: medium
+    rationale: "Human reviewer found the response replaced the growth objective with generic risk framing."
+regression:
+  comparable_to: []
+  notes:
+    - "Human review is local calibration evidence only."
+human_review:
+  schema_version: 0.3.0
+  review_status: reviewed
+  reviewed_by: local_reviewer
+  reviewed_at: "2026-06-18T00:00:00+08:00"
+  decision: confirmed_fail
+  reviewer_notes:
+    - "The response asks some useful context questions, but it does not preserve the user's stated ranking goal, so the near-threshold output should remain a failure."
+  calibration_notes:
+    false_positive:
+      applies: true
+      notes:
+        - "A context-question marker can over-credit a response that drops the central objective."
+    false_negative:
+      applies: false
+      notes: []
+  safety:
+    local_record_only: true
+    changes_default_scorer: false
+    applies_result: false
+    mutates_assets: false

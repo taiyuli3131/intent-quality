@@ -10,6 +10,7 @@ from .schemas import (
     load_yaml,
     load_yaml_bytes,
     validate_contribution_package,
+    validate_eval_result_review,
     validate_external_candidate,
     validate_profile_update_suggestion,
     validate_public_case,
@@ -53,6 +54,12 @@ EXPECTED_PROFILE_MEMORY_FIXTURES = {
     "unsafe-global-memory.yaml": "scope",
 }
 
+EXPECTED_EVAL_REVIEW_FIXTURES = {
+    "confirmed-pass.yaml": "confirmed_pass",
+    "confirmed-fail.yaml": "confirmed_fail",
+    "remains-uncertain.yaml": "remains_uncertain",
+}
+
 
 def run_check(args: Any) -> int:
     root = find_project_root(Path(args.root) if args.root else None)
@@ -62,6 +69,7 @@ def run_check(args: Any) -> int:
     errors.extend(check_local_loop_assets(root))
     errors.extend(check_public_candidate_fixtures(root))
     errors.extend(check_eval_response_fixtures(root))
+    errors.extend(check_eval_review_fixtures(root))
     errors.extend(check_diagnosis_quality_fixtures(root))
     errors.extend(check_profile_memory_fixtures(root))
     errors.extend(check_playbook_pages(root))
@@ -73,7 +81,7 @@ def run_check(args: Any) -> int:
         return 1
 
     print("local loop checks passed")
-    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures, diagnosis quality fixtures, profile memory fixtures, playbook links")
+    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures, eval review fixtures, diagnosis quality fixtures, profile memory fixtures, playbook links")
     print("mode: read-only; no rules, profiles, datasets, casebooks, candidates, suggestions, or submissions were modified")
     return 0
 
@@ -203,6 +211,36 @@ def check_eval_response_fixtures(root: Path) -> list[str]:
             errors.append(f"{path}: pass fixture produced blocking failures")
         if expected_status != "pass" and not results[0].get("failure_codes"):
             errors.append(f"{path}: failing fixture produced no failure codes")
+    return errors
+
+
+def check_eval_review_fixtures(root: Path) -> list[str]:
+    fixture_dir = root / "examples" / "eval-review-fixtures"
+    manifest_path = fixture_dir / "manifest.yaml"
+    if not manifest_path.exists():
+        return [f"{manifest_path}: missing eval review fixture manifest"]
+
+    manifest = load_yaml(manifest_path)
+    errors: list[str] = []
+    expected = {
+        item["fixture"]: item["expected_decision"]
+        for item in manifest.get("fixtures", [])
+    } or EXPECTED_EVAL_REVIEW_FIXTURES
+
+    before = protected_snapshot(root)
+    for filename, expected_decision in expected.items():
+        path = fixture_dir / filename
+        if not path.exists():
+            errors.append(f"{path}: missing eval review fixture")
+            continue
+        review_result = load_yaml(path)
+        errors.extend(validate_eval_result_review(review_result, str(path)))
+        actual_decision = review_result.get("human_review", {}).get("decision")
+        if actual_decision != expected_decision:
+            errors.append(f"{path}: expected review decision {expected_decision}, got {actual_decision}")
+    after = protected_snapshot(root)
+    if before != after:
+        errors.append("eval review fixture check modified protected local assets")
     return errors
 
 

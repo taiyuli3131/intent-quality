@@ -10,6 +10,7 @@ from .schemas import load_yaml, write_yaml
 
 SCORER_SCHEMA_VERSION = "0.2.0"
 SCORER_VERSION = "0.2.0-beta"
+HUMAN_REVIEW_SCHEMA_VERSION = "0.3.0"
 SCORING_METHOD = {
     "type": "heuristic",
     "evaluator": "intent-quality",
@@ -219,7 +220,7 @@ def evaluate_case(case: dict[str, Any], response: str) -> dict[str, Any]:
     failure_codes = sorted({failure_code(item) for item in failed_observations + blocking})
     evidence = must_evidence + must_not_evidence + blocking_evidence
     dimension_scores = build_dimension_scores(case, observed_must, missing_must, violated_must_not, blocking, score)
-    return {
+    result_record = {
         "schema_version": SCORER_SCHEMA_VERSION,
         "eval_id": case.get("eval_id"),
         "source_case_id": case.get("source_case_id"),
@@ -257,6 +258,36 @@ def evaluate_case(case: dict[str, Any], response: str) -> dict[str, Any]:
         "missing_must": list(missing_must),
         "violated_must_not": list(violated_must_not),
         "blocking_failures": list(blocking),
+    }
+    if status == "needs_review":
+        result_record["human_review"] = pending_human_review_record()
+    return result_record
+
+
+def pending_human_review_record() -> dict[str, Any]:
+    return {
+        "schema_version": HUMAN_REVIEW_SCHEMA_VERSION,
+        "review_status": "pending",
+        "reviewed_by": None,
+        "reviewed_at": None,
+        "decision": None,
+        "reviewer_notes": [],
+        "calibration_notes": {
+            "false_positive": {
+                "applies": False,
+                "notes": [],
+            },
+            "false_negative": {
+                "applies": False,
+                "notes": [],
+            },
+        },
+        "safety": {
+            "local_record_only": True,
+            "changes_default_scorer": False,
+            "applies_result": False,
+            "mutates_assets": False,
+        },
     }
 
 

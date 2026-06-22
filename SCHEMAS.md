@@ -402,6 +402,72 @@ Semantic markers:
 - should be used instead of forcing a false pass when marker evidence is incomplete;
 - does not authorize mutation, adoption, contribution, or rule/profile changes.
 
+## 4.2 Eval Review Record
+
+v0.3 P1 adds an optional human-review record for eval results whose scorer status is `needs_review`. The record is local review metadata only. It does not change the default heuristic scorer, does not apply an eval result, and does not mutate datasets, rubrics, profiles, rules, casebooks, suggestions, or contributions.
+
+Runtime `needs_review` results may include a pending review slot:
+
+```yaml
+human_review:
+  schema_version: 0.3.0
+  review_status: pending # pending | in_review | reviewed
+  reviewed_by: null
+  reviewed_at: null
+  decision: null # confirmed_pass | confirmed_fail | remains_uncertain | null
+  reviewer_notes: []
+  calibration_notes:
+    false_positive:
+      applies: false
+      notes: []
+    false_negative:
+      applies: false
+      notes: []
+  safety:
+    local_record_only: true
+    changes_default_scorer: false
+    applies_result: false
+    mutates_assets: false
+```
+
+A completed review may record one of three decisions:
+
+```yaml
+human_review:
+  schema_version: 0.3.0
+  review_status: reviewed
+  reviewed_by: local_reviewer
+  reviewed_at: "2026-06-18T00:00:00+08:00"
+  decision: confirmed_fail # confirmed_pass | confirmed_fail | remains_uncertain
+  reviewer_notes:
+    - "The response asked useful context questions but dropped the user's central growth objective."
+  calibration_notes:
+    false_positive:
+      applies: true
+      notes:
+        - "A marker over-credited a response that did not preserve the required objective."
+    false_negative:
+      applies: false
+      notes: []
+  safety:
+    local_record_only: true
+    changes_default_scorer: false
+    applies_result: false
+    mutates_assets: false
+```
+
+Review decisions:
+
+- `confirmed_pass`: the human reviewer believes the `needs_review` output should be treated as acceptable for this fixture;
+- `confirmed_fail`: the human reviewer believes the `needs_review` output should be treated as unacceptable for this fixture;
+- `remains_uncertain`: the human reviewer cannot safely classify the output from the available fixture evidence.
+
+Calibration notes:
+
+- `false_positive` records cases where the heuristic scorer may have over-credited marker evidence;
+- `false_negative` records cases where the heuristic scorer may have under-credited an acceptable answer;
+- these notes are calibration evidence only and must not automatically update the scorer, dataset, rubric, profile, rules, or accepted assets.
+
 ## 5. Profile
 
 Profiles should only store Agent collaboration behavior and preferences.
