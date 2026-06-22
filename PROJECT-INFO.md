@@ -1,7 +1,7 @@
 # Intent Quality Project Info
 
-> Updated: 2026-06-18
-> Status: v0.2 candidate accepted; project overview and document index
+> Updated: 2026-06-22
+> Status: v0.3 open source foundation accepted; project overview and document index
 
 ## 1. Current Positioning
 
@@ -62,6 +62,8 @@ diagnose real collaboration issues
 - `SCHEMAS.md`: YAML schemas for diagnosis, case, eval dataset, profile, public candidate, suggestion, and contribution files.
 - `DIAGNOSE-EVAL-FLOW.md`: operational flow for diagnose, eval, public sync, suggestions, contribution, and learning feedback.
 - `docs/release-v0.2.md`: current v0.2 capability summary and non-goals.
+- `docs/launch-copy.md`: GitHub/social launch copy and short project descriptions.
+- `docs/open-source-foundation-checklist.md`: open-source readiness checklist and verification commands.
 - `docs/v0.3-planning-brief.md`: seed brief for v0.3 planning.
 - `docs/v0.3-roadmap.md`: v0.3 planning baseline, including priorities, scope, non-goals, acceptance criteria, and follow-up workstreams.
 - `docs/public-sync-contribution-minimal-loop.md`: first local closed-loop design for public sync, external candidate checks, suggestions, contribution packages, anonymization, withdrawal, and prompt controls.
@@ -73,7 +75,7 @@ diagnose real collaboration issues
 
 Current accepted tag:
 
-- `v0.2-candidate-accepted`
+- `v0.3-open-source-foundation`
 
 Baseline commits:
 
@@ -82,18 +84,27 @@ Baseline commits:
 - `ee050c9`: v0.2-beta scorer reliability baseline.
 - `fb927ff`: v0.2 candidate readiness and product boundary documentation.
 - `1e8b414`: v0.2 candidate acceptance record.
+- `88937d9`: v0.3-alpha diagnosis quality baseline.
+- `cc29d00`: v0.3 playbook baseline.
+- `606eaad`: v0.3 profile memory baseline.
+- `aa07b46`: open-source foundation preparation.
+- `28fcde4`: open-source foundation acceptance.
 
-v0.2 is a reliability hardening release, not a platformization release.
+The current public baseline is an open-source local foundation, not a platformization release.
 
-Accepted v0.2 capabilities:
+Accepted current capabilities:
 
+- project-local diagnosis with Markdown and YAML reports;
+- finding-level evidence, confidence, premise status, completion questions, expected/actual mode, authorization scope, and generated candidate previews;
 - public sync fetches or stages real candidate content before suggestion generation;
 - public sync verifies `content_sha256` and blocks unsafe candidate gates;
 - eval scorer output includes failure codes, evidence mapping, blocking failures, scorer limitations, and `needs_review`;
+- local playbook pages cover recurring Agent collaboration concepts;
+- profile memory is represented as pending, project-local, confirmation-gated suggestions only;
 - public candidate, suggestion, contribution, profile/rule, dataset, and casebook changes remain user-confirmation gated;
-- `check` remains read-only and covers public sync fixtures plus eval response fixtures.
+- `check` remains read-only and covers public sync fixtures, eval response fixtures, diagnosis quality fixtures, profile memory fixtures, and playbook links.
 
-Accepted v0.2 non-goals:
+Accepted non-goals:
 
 - hosted accounts;
 - full dashboard;
