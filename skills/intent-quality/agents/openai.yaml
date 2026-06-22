@@ -1,0 +1,8 @@
+interface:
+  display_name: "Intent Quality"
+  short_description: "Check Codex collaboration quality locally."
+  brand_color: "#2563EB"
+  default_prompt: "Use $intent-quality to check whether this Codex task preserved intent and authorization."
+
+policy:
+  allow_implicit_invocation: true

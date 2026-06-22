@@ -28,6 +28,18 @@ For local development without installation, use:
 python -m intent_quality.cli --help
 ```
 
+## Codex Plugin
+
+This repository also includes a Codex plugin manifest and an `intent-quality` skill.
+
+After installing the plugin in Codex, use:
+
+```text
+Use $intent-quality to check whether this task preserves intent and authorization.
+```
+
+The skill guides Codex through local collaboration-quality checks, diagnosis, evals, suggestions, and release verification while preserving the project's confirmation-gated safety model.
+
 ## Quick Start
 
 Run the read-only project check:

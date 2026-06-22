@@ -1,0 +1,45 @@
+{
+  "name": "intent-quality",
+  "version": "0.3.1",
+  "description": "Codex plugin for local-first Agent collaboration quality checks, intent diagnosis, evals, and confirmation-gated learning.",
+  "author": {
+    "name": "intent-quality contributors",
+    "url": "https://github.com/taiyuli3131"
+  },
+  "homepage": "https://github.com/taiyuli3131/intent-quality",
+  "repository": "https://github.com/taiyuli3131/intent-quality",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "ai-agents",
+    "agent-evaluation",
+    "intent-diagnosis",
+    "collaboration-quality",
+    "local-first",
+    "prompt-quality",
+    "quality-assurance"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Intent Quality",
+    "shortDescription": "Diagnose and test Agent collaboration quality locally.",
+    "longDescription": "Intent Quality helps Codex users preserve user intent, check authorization boundaries, detect stale context, validate premises, run collaboration-quality evals, and keep learning confirmation-gated.",
+    "developerName": "intent-quality contributors",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Local workflow guidance",
+      "CLI validation",
+      "Agent evaluation",
+      "Intent diagnosis"
+    ],
+    "websiteURL": "https://github.com/taiyuli3131/intent-quality",
+    "privacyPolicyURL": "https://github.com/taiyuli3131/intent-quality/blob/master/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/taiyuli3131/intent-quality/blob/master/LICENSE",
+    "defaultPrompt": [
+      "Use $intent-quality to check this repo before changing files.",
+      "Use $intent-quality to diagnose why this Agent task went wrong.",
+      "Use $intent-quality to turn this failure into a local eval."
+    ],
+    "brandColor": "#2563EB"
+  }
+}
