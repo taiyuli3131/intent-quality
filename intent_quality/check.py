@@ -9,6 +9,7 @@ from .paths import find_project_root
 from .schemas import (
     load_yaml,
     load_yaml_bytes,
+    validate_adapter_export,
     validate_contribution_package,
     validate_eval_result_review,
     validate_external_candidate,
@@ -60,6 +61,12 @@ EXPECTED_EVAL_REVIEW_FIXTURES = {
     "remains-uncertain.yaml": "remains_uncertain",
 }
 
+EXPECTED_ADAPTER_EXPORT_FIXTURES = {
+    "promptfoo.yaml": "promptfoo",
+    "deepeval.yaml": "deepeval",
+    "pydantic-evals.yaml": "pydantic-evals",
+}
+
 
 def run_check(args: Any) -> int:
     root = find_project_root(Path(args.root) if args.root else None)
@@ -72,6 +79,7 @@ def run_check(args: Any) -> int:
     errors.extend(check_eval_review_fixtures(root))
     errors.extend(check_diagnosis_quality_fixtures(root))
     errors.extend(check_profile_memory_fixtures(root))
+    errors.extend(check_adapter_export_fixtures(root))
     errors.extend(check_playbook_pages(root))
 
     if errors:
@@ -81,7 +89,7 @@ def run_check(args: Any) -> int:
         return 1
 
     print("local loop checks passed")
-    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures, eval review fixtures, diagnosis quality fixtures, profile memory fixtures, playbook links")
+    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures, eval review fixtures, diagnosis quality fixtures, profile memory fixtures, adapter export fixtures, playbook links")
     print("mode: read-only; no rules, profiles, datasets, casebooks, candidates, suggestions, or submissions were modified")
     return 0
 
@@ -323,6 +331,32 @@ def check_profile_memory_fixtures(root: Path) -> list[str]:
     after = protected_snapshot(root)
     if before != after:
         errors.append("profile memory fixture check modified protected local assets")
+    return errors
+
+
+def check_adapter_export_fixtures(root: Path) -> list[str]:
+    fixture_dir = root / "examples" / "adapter-export-fixtures"
+    if not fixture_dir.exists():
+        return [f"{fixture_dir}: missing adapter export fixtures"]
+
+    errors: list[str] = []
+    before = protected_snapshot(root)
+    for filename, expected_format in EXPECTED_ADAPTER_EXPORT_FIXTURES.items():
+        path = fixture_dir / filename
+        if not path.exists():
+            errors.append(f"{path}: missing adapter export fixture")
+            continue
+        export = load_yaml(path)
+        errors.extend(validate_adapter_export(export, str(path)))
+        if export.get("format") != expected_format:
+            errors.append(f"{path}: expected format {expected_format}, got {export.get('format')}")
+        draft = export.get("draft", {})
+        draft_blob = str(draft).lower()
+        if "response under test" not in draft_blob:
+            errors.append(f"{path}: draft must keep response under test placeholder")
+    after = protected_snapshot(root)
+    if before != after:
+        errors.append("adapter export fixture check modified protected local assets")
     return errors
 
 

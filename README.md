@@ -192,6 +192,7 @@ intent-quality public fetch
 intent-quality public suggest
 intent-quality contribute create --diagnosis .intent-quality/diagnoses/diag_YYYYMMDD_NNN.yaml
 intent-quality contribute review
+intent-quality adapter export datasets/collaboration-quality.v0.1.yaml --format promptfoo
 intent-quality check
 ```
 
@@ -203,10 +204,13 @@ python -m intent_quality.cli public fetch
 python -m intent_quality.cli public suggest
 python -m intent_quality.cli contribute create --description "Discussion was treated as file update authorization."
 python -m intent_quality.cli contribute review
+python -m intent_quality.cli adapter export datasets/collaboration-quality.v0.1.yaml --format deepeval
 python -m intent_quality.cli check
 ```
 
-The MVP keeps mutating behavior narrow. `diagnose` writes only diagnosis reports under `.intent-quality/diagnoses/`. `public fetch` writes only the public index and fetch metadata. `public suggest` writes external candidates and pending suggestions only. `contribute create` writes a local pending contribution package only. `check`, `eval`, `suggest list`, and `contribute review` are read-only. No profile, rules, accepted dataset, casebook, rubric, public upload, contribution state change, or profile memory is applied automatically.
+The MVP keeps mutating behavior narrow. `diagnose` writes only diagnosis reports under `.intent-quality/diagnoses/`. `public fetch` writes only the public index and fetch metadata. `public suggest` writes external candidates and pending suggestions only. `contribute create` writes a local pending contribution package only. `adapter export` writes only an optional experimental draft when `--output` is supplied. `check`, `eval`, `suggest list`, and `contribute review` are read-only. No profile, rules, accepted dataset, casebook, rubric, public upload, contribution state change, or profile memory is applied automatically.
+
+`adapter export` can emit experimental/internal draft mappings for `promptfoo`, `deepeval`, and `pydantic-evals`. These files are for inspection and future integration planning only. They do not run external frameworks, do not add core runtime dependencies, do not replace the default heuristic scorer, and do not apply results automatically.
 
 ## v0.2 Reliability Baseline
 

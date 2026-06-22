@@ -468,6 +468,62 @@ Calibration notes:
 - `false_negative` records cases where the heuristic scorer may have under-credited an acceptable answer;
 - these notes are calibration evidence only and must not automatically update the scorer, dataset, rubric, profile, rules, or accepted assets.
 
+## 4.3 Adapter Export Draft
+
+v0.3 P2 may export eval datasets into experimental/internal adapter drafts for external tooling exploration. These drafts are not core runtime integrations. They must not run external frameworks, replace the default heuristic scorer, apply eval results, mutate local assets, or imply that an external framework is required by intent-quality.
+
+Supported draft formats:
+
+- `promptfoo`;
+- `deepeval`;
+- `pydantic-evals`.
+
+Required adapter export structure:
+
+```yaml
+schema_version: 0.3.0
+export_id: adapter_<stable_id>
+format: promptfoo # promptfoo | deepeval | pydantic-evals
+experimental: true
+internal_only: true
+generated_by: intent-quality
+source:
+  dataset_id: collaboration_quality_v0_1
+  dataset_schema_version: 0.1.0
+  rubric_version: 0.1.0
+  visibility: internal
+  status: candidate_standard
+  case_count: 5
+  dataset_path: datasets/collaboration-quality.v0.1.yaml
+scoring_method:
+  type: heuristic
+  evaluator: intent-quality
+  evaluator_version: 0.2.0-beta
+  limitations: "Marker-based scorer for regression checks; not a complete semantic evaluator."
+safety:
+  runs_external_framework: false
+  core_runtime_dependency: false
+  changes_default_scorer: false
+  applies_results: false
+  mutates_assets: false
+  requires_user_confirmation_before_use: true
+limitations:
+  - "Draft export only; intent-quality does not run this adapter in v0.3."
+  - "The default scorer remains the local heuristic marker scorer, not a complete semantic evaluator."
+  - "Review generated adapter files before using them in external tooling."
+draft:
+  config_type: promptfoo_config_draft
+  tests: []
+```
+
+Adapter export validation must reject:
+
+- missing `experimental: true` or `internal_only: true`;
+- any safety flag that claims external execution, core runtime dependency, scorer replacement, result application, or asset mutation;
+- private identifiers or private paths;
+- confirmation-bypass or automatic-application language;
+- missing scorer limitation language.
+
 ## 5. Profile
 
 Profiles should only store Agent collaboration behavior and preferences.

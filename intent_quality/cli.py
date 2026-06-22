@@ -4,6 +4,7 @@ import argparse
 from typing import Sequence
 
 from . import __version__
+from .adapter_export import SUPPORTED_FORMATS, run_adapter_export
 from .check import run_check
 from .contribution import run_contribute_create, run_contribute_review
 from .diagnose import run_conversation, run_manual
@@ -31,6 +32,14 @@ def build_parser() -> argparse.ArgumentParser:
     eval_parser.add_argument("--eval-id", help="Run only one eval case.")
     eval_parser.add_argument("--output", help="Optional YAML output path.")
     eval_parser.set_defaults(func=run_eval)
+
+    adapter = subparsers.add_parser("adapter", help="Create experimental internal adapter export drafts.")
+    adapter_sub = adapter.add_subparsers(dest="adapter_command", required=True)
+    adapter_export = adapter_sub.add_parser("export", help="Export a dataset as an experimental adapter draft.")
+    adapter_export.add_argument("dataset", help="Dataset YAML path.")
+    adapter_export.add_argument("--format", required=True, choices=sorted(SUPPORTED_FORMATS), help="Adapter draft format.")
+    adapter_export.add_argument("--output", help="Optional YAML output path. Prints to stdout when omitted.")
+    adapter_export.set_defaults(func=run_adapter_export)
 
     suggest = subparsers.add_parser("suggest", help="Inspect local suggestions.")
     suggest_sub = suggest.add_subparsers(dest="suggest_command", required=True)

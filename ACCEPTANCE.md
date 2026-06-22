@@ -283,3 +283,19 @@ Acceptance notes:
 - Eval review validation confirms records do not apply results, change the default scorer, or mutate datasets, rubrics, profiles, rules, casebooks, suggestions, candidates, contributions, or submissions.
 - `intent-quality check` validates eval review fixtures and remains read-only.
 - `python -m compileall intent_quality`, `python -m intent_quality.cli --help`, and `python -m intent_quality.cli --version` pass.
+
+## v0.3 P2 Adapter Export Baseline
+
+Status: `v0.3 P2 Adapter Export local baseline`
+
+Date: 2026-06-22
+
+Scope: experimental/internal adapter export drafts only; no external framework execution, no core runtime dependency, no default scorer replacement, no LLM-as-judge, no dashboard, no platformization, and no automatic mutation.
+
+Acceptance notes:
+
+- `adapter export` supports draft output for `promptfoo`, `deepeval`, and `pydantic-evals`.
+- Exported drafts include source dataset metadata, schema/rubric versions, scorer limitations, and explicit experimental/internal status.
+- Export safety metadata states that the draft does not run external frameworks, does not become a core runtime dependency, does not change the default scorer, does not apply results, and does not mutate assets.
+- Adapter fixtures preserve `<response under test>` placeholders and are intended for review before any external use.
+- `intent-quality check` validates adapter export fixtures and remains read-only.

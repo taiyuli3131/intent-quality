@@ -415,6 +415,69 @@ def validate_eval_result_review(data: dict[str, Any], label: str = "eval result"
     return errors
 
 
+def validate_adapter_export(data: dict[str, Any], label: str = "adapter export") -> list[str]:
+    errors = require(
+        data,
+        [
+            "schema_version",
+            "export_id",
+            "format",
+            "experimental",
+            "internal_only",
+            "source",
+            "scoring_method",
+            "safety",
+            "limitations",
+            "draft",
+        ],
+        label,
+    )
+    if errors:
+        return errors
+    if data.get("schema_version") != "0.3.0":
+        errors.append(f"{label}: schema_version must be 0.3.0")
+    if data.get("format") not in {"promptfoo", "deepeval", "pydantic-evals"}:
+        errors.append(f"{label}: format must be promptfoo, deepeval, or pydantic-evals")
+    if data.get("experimental") is not True:
+        errors.append(f"{label}: experimental must be true")
+    if data.get("internal_only") is not True:
+        errors.append(f"{label}: internal_only must be true")
+    source = data.get("source", {})
+    errors.extend(
+        require(
+            source,
+            ["dataset_id", "dataset_schema_version", "rubric_version", "case_count"],
+            f"{label}:source",
+        )
+    )
+    scoring = data.get("scoring_method", {})
+    if scoring.get("type") != "heuristic":
+        errors.append(f"{label}: scoring_method.type must remain heuristic")
+    limitations_text = text_blob(data.get("limitations", []) + [scoring.get("limitations", "")]).lower()
+    if "not a complete semantic evaluator" not in limitations_text:
+        errors.append(f"{label}: limitations must preserve heuristic scorer limitation language")
+    safety = data.get("safety", {})
+    if safety.get("requires_user_confirmation_before_use") is not True:
+        errors.append(f"{label}: safety.requires_user_confirmation_before_use must be true")
+    for field in [
+        "runs_external_framework",
+        "core_runtime_dependency",
+        "changes_default_scorer",
+        "applies_results",
+        "mutates_assets",
+    ]:
+        if safety.get(field) is not False:
+            errors.append(f"{label}: safety.{field} must be false")
+    draft = data.get("draft", {})
+    if not isinstance(draft, dict) or not draft.get("config_type"):
+        errors.append(f"{label}: draft.config_type is required")
+    if privacy_flags(data):
+        errors.append(f"{label}: adapter export must not contain private identifiers or private paths")
+    if poisoning_flags(data):
+        errors.append(f"{label}: adapter export contains unsafe auto-apply or confirmation-bypass language")
+    return errors
+
+
 def validate_suggestions_file(data: dict[str, Any], label: str = "suggestions file") -> list[str]:
     errors = require(data, ["schema_version", "suggestions"], label)
     if errors:
