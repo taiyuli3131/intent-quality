@@ -1,7 +1,7 @@
 # Intent Quality Project Info
 
 > Updated: 2026-06-22
-> Status: v0.3 open source foundation accepted; project overview and document index
+> Status: v0.3 candidate-ready baseline; project overview and document index
 
 ## 1. Current Positioning
 
@@ -57,8 +57,8 @@ diagnose real collaboration issues
 ## 5. Document Map
 
 - `README.md`: user-facing project entry, CLI overview, v0.2 reliability baseline, and safety model.
-- `ACCEPTANCE.md`: version acceptance record, including v0.1 and v0.2 candidate acceptance.
-- `PRODUCT-SPEC.md`: current product specification, scope, modules, trust boundaries, and first-phase behavior.
+- `ACCEPTANCE.md`: version acceptance record, including v0.1, v0.2, and v0.3 baseline decisions.
+- `PRODUCT-SPEC.md`: current product specification, scope, modules, trust boundaries, v0.3 review layers, and first-phase behavior.
 - `SCHEMAS.md`: YAML schemas for diagnosis, case, eval dataset, profile, public candidate, suggestion, and contribution files.
 - `DIAGNOSE-EVAL-FLOW.md`: operational flow for diagnose, eval, public sync, suggestions, contribution, and learning feedback.
 - `docs/release-v0.2.md`: current v0.2 capability summary and non-goals.
@@ -87,10 +87,12 @@ Baseline commits:
 - `88937d9`: v0.3-alpha diagnosis quality baseline.
 - `cc29d00`: v0.3 playbook baseline.
 - `606eaad`: v0.3 profile memory baseline.
+- `598c217`: v0.3 eval review baseline.
+- `e38e5ee`: v0.3 adapter export baseline.
 - `aa07b46`: open-source foundation preparation.
 - `28fcde4`: open-source foundation acceptance.
 
-The current public baseline is an open-source local foundation, not a platformization release.
+The current public tag is the open-source local foundation. The local branch has advanced through v0.3 eval review and adapter export baselines toward candidate readiness.
 
 Accepted current capabilities:
 
@@ -99,10 +101,12 @@ Accepted current capabilities:
 - public sync fetches or stages real candidate content before suggestion generation;
 - public sync verifies `content_sha256` and blocks unsafe candidate gates;
 - eval scorer output includes failure codes, evidence mapping, blocking failures, scorer limitations, and `needs_review`;
+- eval review records local human-review metadata, reviewer notes, review decisions, and calibration notes for `needs_review` outputs without changing the default scorer;
+- adapter export produces experimental/internal Promptfoo, DeepEval, and Pydantic Evals draft mappings without running external frameworks or adding core runtime dependencies;
 - local playbook pages cover recurring Agent collaboration concepts;
 - profile memory is represented as pending, project-local, confirmation-gated suggestions only;
 - public candidate, suggestion, contribution, profile/rule, dataset, and casebook changes remain user-confirmation gated;
-- `check` remains read-only and covers public sync fixtures, eval response fixtures, diagnosis quality fixtures, profile memory fixtures, and playbook links.
+- `check` remains read-only and covers public sync fixtures, eval response fixtures, eval review fixtures, diagnosis quality fixtures, profile memory fixtures, adapter export fixtures, and playbook links.
 
 Accepted non-goals:
 
@@ -111,6 +115,8 @@ Accepted non-goals:
 - automatic public upload;
 - automatic public-sample adoption;
 - automatic profile/rule/dataset/casebook/rubric/contribution mutation;
+- external eval frameworks as core runtime dependencies;
+- default LLM-as-judge scoring;
 - full semantic evaluation.
 
 ## 7. Historical Content Integration
@@ -139,7 +145,7 @@ Priority order:
 - P2: adapter export as experimental/internal draft output only.
 - P2: public registry maintenance below platform scope.
 
-v0.3 should not add hosted accounts, dashboards, automatic public upload, automatic public-sample adoption, automatic profile/rule/dataset/casebook/rubric/contribution mutation, production registry trust infrastructure, default LLM-as-judge scoring, or a complete semantic evaluator.
+v0.3 should not add hosted accounts, dashboards, automatic public upload, automatic public-sample adoption, automatic profile/rule/dataset/casebook/rubric/contribution mutation, production registry trust infrastructure, external eval frameworks as core runtime dependencies, default LLM-as-judge scoring, or a complete semantic evaluator.
 
 The first implementation specialty should be diagnosis quality.
 

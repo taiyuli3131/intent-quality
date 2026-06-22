@@ -10,7 +10,7 @@ This project is not a hosted eval platform, a prompt collection, or a generic an
 
 ## Current Status
 
-`intent-quality` is in an open-source foundation stage. The core local loop is usable for project-local diagnosis, fixtures, regression checks, playbook learning, public candidate gating, and pending profile-memory suggestions.
+`intent-quality` is in the v0.3 local candidate stage. The core local loop is usable for project-local diagnosis, fixtures, regression checks, playbook learning, public candidate gating, pending profile-memory suggestions, local eval review metadata, and experimental/internal adapter export drafts.
 
 The current package version is `0.3.0`.
 
@@ -243,6 +243,19 @@ Eval scoring now records more inspectable regression output:
 
 The scorer remains a heuristic marker-based regression scorer. It is useful for repeatable collaboration-quality checks, but it is not a complete semantic evaluator.
 
+## v0.3 Candidate Scope
+
+v0.3 keeps the same local-first safety model while adding the user-facing diagnosis and review layers needed for a candidate release:
+
+- diagnosis reports expose finding-level evidence, confidence, premise status, targeted completion questions, expected versus actual mode, authorization scope, learning feedback, and preview-only generated candidates;
+- playbook pages cover the core concepts surfaced by diagnosis reports;
+- profile memory remains project-local, pending, evidence-backed, rollback-described, and confirmation-gated;
+- eval review adds local human-review metadata for `needs_review` outputs, including reviewer notes and calibration notes, without changing the default heuristic scorer;
+- adapter export emits experimental/internal draft mappings for Promptfoo, DeepEval, and Pydantic Evals without running those frameworks or making them core runtime dependencies;
+- `check` remains read-only and validates the public sync, eval response, eval review, diagnosis quality, profile memory, adapter export, and playbook fixtures.
+
+v0.3 does not add a hosted platform, dashboard, automatic public upload, automatic public-sample adoption, automatic profile/rule/dataset/casebook/rubric/contribution mutation, default LLM-as-judge scoring, or complete semantic evaluation.
+
 v0.2 does not change the safety model:
 
 - no hosted accounts;
@@ -273,7 +286,8 @@ Included:
 - standardized diagnosis reports;
 - local casebook entries;
 - eval dataset samples;
-- adapter-ready eval structure;
+- eval review metadata for ambiguous `needs_review` results;
+- experimental/internal adapter export drafts;
 - public index sync;
 - local suggestions;
 - anonymized contribution packages;

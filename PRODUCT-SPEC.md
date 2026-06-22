@@ -1,6 +1,6 @@
 # Intent Quality Product Spec
 
-> Updated: 2026-06-16
+> Updated: 2026-06-22
 > Product shape: local-first Agent collaboration quality system for Codex users
 
 ## 1. Product Definition
@@ -26,6 +26,8 @@ First phase includes:
 - local casebook entries;
 - eval dataset samples;
 - lightweight eval execution and adapter-ready structure;
+- local eval review metadata for ambiguous `needs_review` outputs;
+- experimental/internal adapter export drafts;
 - public case index sync;
 - local suggestions;
 - anonymized contribution packages;
@@ -38,7 +40,9 @@ First phase excludes:
 - hosted account system;
 - full eval dashboard;
 - automatic public uploads;
-- automatic local rule/profile/dataset mutation;
+- automatic local profile, rule, dataset, casebook, rubric, contribution, suggestion, or accepted-asset mutation;
+- external eval frameworks as core runtime dependencies;
+- default LLM-as-judge scoring;
 - enterprise governance workflows;
 - default cross-project global history analysis.
 
@@ -78,6 +82,26 @@ v0.2 remains out of scope:
 - a complete semantic evaluator;
 - enterprise governance workflows.
 
+v0.3 turns the reliable v0.2 loop into a candidate-ready local workflow by improving diagnosis quality, learning support, local profile suggestions, eval review, and adapter-ready output without changing the product category.
+
+v0.3 scope:
+
+- diagnosis reports include finding-level evidence, confidence, premise status, targeted completion questions, expected versus actual mode, authorization scope, learning feedback, and preview-only generated candidates;
+- playbook pages cover the concepts used by diagnosis learning feedback;
+- local profile memory appears only as pending, project-local, evidence-backed suggestions with confirmation state and rollback notes;
+- eval review records local human-review status, reviewer notes, review decisions, and false-positive / false-negative calibration notes for `needs_review` outputs;
+- adapter export emits experimental/internal draft mappings for Promptfoo, DeepEval, and Pydantic Evals;
+- read-only checks validate public sync, eval responses, eval review, diagnosis quality, profile memory, adapter export, and playbook coverage.
+
+v0.3 remains out of scope:
+
+- hosted accounts or dashboards;
+- automatic public upload or public-sample adoption;
+- automatic profile, rule, dataset, casebook, rubric, contribution, suggestion, or accepted-asset mutation;
+- default LLM-as-judge scoring;
+- complete semantic evaluation;
+- external eval frameworks as core runtime dependencies.
+
 ## 3. Diagnose And Eval
 
 `diagnose` is for real user work. It answers:
@@ -95,6 +119,10 @@ v0.2 remains out of scope:
 - Did a rule change reduce or increase failures?
 - Does the Agent respect authorization boundaries?
 - Does the Agent avoid goal replacement and context pollution?
+
+Eval review is a local human-review layer for ambiguous `needs_review` results. It records reviewer notes and calibration metadata, but it does not change the default heuristic scorer, apply results, or mutate datasets, rubrics, profiles, rules, casebooks, suggestions, or contributions.
+
+Adapter export is an experimental/internal bridge for future external-tool comparison. It can draft Promptfoo, DeepEval, and Pydantic Evals mappings, but it does not run those frameworks, make them required dependencies, replace the heuristic scorer, or apply any result.
 
 The preferred flow is:
 

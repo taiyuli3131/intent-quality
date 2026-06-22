@@ -299,3 +299,27 @@ Acceptance notes:
 - Export safety metadata states that the draft does not run external frameworks, does not become a core runtime dependency, does not change the default scorer, does not apply results, and does not mutate assets.
 - Adapter fixtures preserve `<response under test>` placeholders and are intended for review before any external use.
 - `intent-quality check` validates adapter export fixtures and remains read-only.
+
+## v0.3 Candidate-Ready Baseline
+
+Status: `v0.3 candidate-ready baseline`
+
+Date: 2026-06-22
+
+Scope: documentation consistency cleanup and final local validation for v0.3 candidate readiness; no new product capability, no platformization, no external framework runtime integration, no default LLM-as-judge scoring, and no automatic mutation.
+
+Acceptance notes:
+
+- README, PROJECT-INFO, PRODUCT-SPEC, DIAGNOSE-EVAL-FLOW, and v0.3-roadmap consistently describe v0.3 as a local-first, file-based, confirmation-gated candidate.
+- Eval Review is documented as local human-review metadata for `needs_review` outputs only. It does not change the default heuristic scorer, apply results, or mutate datasets, rubrics, profiles, rules, casebooks, suggestions, candidates, contributions, or submissions.
+- Adapter Export is documented as experimental/internal draft output for Promptfoo, DeepEval, and Pydantic Evals. It does not run external frameworks, add core runtime dependencies, replace the heuristic scorer, apply results, or mutate local assets.
+- Public sync remains untrusted candidate + local gate + pending suggestion, not automatic adoption.
+- Profile memory remains project-local pending suggestion, not automatic memory or global/cross-project memory.
+- `intent-quality check` remains read-only and covers public sync fixtures, eval response fixtures, eval review fixtures, diagnosis quality fixtures, profile memory fixtures, adapter export fixtures, and playbook links.
+
+Verification:
+
+- `python -m intent_quality.cli check` passed.
+- `python -m compileall intent_quality` passed.
+- `python -m intent_quality.cli --help` passed.
+- `python -m intent_quality.cli --version` returned `intent-quality 0.3.0`.

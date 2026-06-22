@@ -1,6 +1,6 @@
 # Diagnose And Eval Flow
 
-> Updated: 2026-06-16
+> Updated: 2026-06-22
 > Purpose: operational flow for diagnosis, evaluation, public sync, contribution, and learning
 
 ## 1. End-To-End Loop
@@ -32,6 +32,18 @@ diagnose with stronger evidence
 -> generate previewable suggestions
 -> apply only after confirmation
 -> record rollback and learning state
+```
+
+v0.3 keeps that safety model and adds candidate-ready local review layers:
+
+```text
+diagnose with evidence, confidence, premise status, and completion questions
+-> link learning concepts to playbook pages
+-> keep profile memory as pending project-local suggestions
+-> run marker-based evals with needs_review where confidence is insufficient
+-> record optional human-review metadata for needs_review results
+-> export experimental/internal adapter drafts when useful
+-> validate the loop with read-only checks
 ```
 
 ## 2. Diagnose
@@ -99,12 +111,30 @@ v0.2 eval additionally reports:
 - matched semantic or violation markers when available;
 - short rationale per scored dimension;
 - stable result IDs for regression comparison;
-- whether the scoring method was heuristic, semantic, human-reviewed, or mixed;
+- whether the scoring method was heuristic and whether local human-review metadata is present;
 - `needs_review` when a hard case is close to the pass threshold without a blocking failure.
 
 The current v0.2-beta scorer is heuristic and marker-based. It is designed for regression checks and inspectable evidence, not complete semantic evaluation.
 
 Eval samples should be generated naturally from high-quality diagnosis outputs rather than maintained as an unrelated test system.
+
+v0.3 eval review adds local human-review records for `needs_review` outputs:
+
+- review status;
+- reviewer notes;
+- review decision;
+- false-positive and false-negative calibration notes;
+- safety fields confirming the review does not change the default scorer, apply results, or mutate local assets.
+
+Eval review is metadata for local judgment. It is not a complete semantic evaluator, not an LLM-as-judge default, and not a dataset/rubric mutation mechanism.
+
+v0.3 adapter export may create experimental/internal draft mappings for:
+
+- Promptfoo config drafts;
+- DeepEval test case drafts;
+- Pydantic Evals dataset drafts.
+
+Adapter export does not run external frameworks, add core runtime dependencies, replace the heuristic scorer, apply eval results, or mutate profiles, rules, datasets, casebooks, rubrics, suggestions, candidates, or contributions.
 
 ## 4. Difference Between Diagnose And Eval
 
@@ -349,4 +379,7 @@ After documentation or tooling changes, review:
 - whether historical principles are absorbed;
 - whether public samples remain untrusted by default;
 - whether every mutating action requires confirmation;
-- whether diagnosis and eval are clearly separated but connected.
+- whether diagnosis and eval are clearly separated but connected;
+- whether eval review remains local human-review metadata rather than a full semantic evaluator;
+- whether adapter export remains experimental/internal and optional;
+- whether `check` remains read-only and covers eval review and adapter export fixtures.
