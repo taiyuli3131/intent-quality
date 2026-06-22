@@ -323,3 +323,34 @@ Verification:
 - `python -m compileall intent_quality` passed.
 - `python -m intent_quality.cli --help` passed.
 - `python -m intent_quality.cli --version` returned `intent-quality 0.3.0`.
+
+## v0.3 Candidate Accepted
+
+Status: `v0.3 candidate accepted`
+
+Date: 2026-06-22
+
+Scope: final acceptance of the v0.3 candidate-ready baseline; no remote push, no release tag movement, no platformization, no dashboard, no automatic upload/adoption/mutation, no default LLM-as-judge, no complete semantic evaluator, and no external eval framework core dependency.
+
+Acceptance notes:
+
+- The v0.3 candidate-ready baseline is acceptable.
+- Documentation and implementation remain aligned around local-first, file-based, confirmation-gated boundaries.
+- Eval Review remains local human-review metadata only.
+- Adapter Export remains an experimental/internal draft only.
+- Profile memory remains a project-local pending suggestion.
+- Public sync remains untrusted candidate + local gate + pending suggestion.
+- `intent-quality check` remains read-only.
+- No blocking issue was found for v0.3 candidate acceptance.
+- The uncommitted planning brief control-rule change is non-blocking and intentionally not included in this acceptance commit.
+
+Verification:
+
+- `python -m intent_quality.cli check` passed.
+- `python -m compileall intent_quality` passed.
+- `python -m intent_quality.cli --help` passed.
+- `python -m intent_quality.cli --version` returned `intent-quality 0.3.0`.
+
+Local tag:
+
+- `v0.3-candidate-accepted`
