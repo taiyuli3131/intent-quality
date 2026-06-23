@@ -10,11 +10,25 @@ This project is not a hosted eval platform, a prompt collection, or a generic an
 
 ## Current Status
 
-`intent-quality` is in the v0.3 local candidate stage. The core local loop is usable for project-local diagnosis, fixtures, regression checks, playbook learning, public candidate gating, pending profile-memory suggestions, local eval review metadata, and experimental/internal adapter export drafts.
+`intent-quality` is in the v0.3 local candidate stage, with v0.4 P0 diagnosis-quality calibration work underway. The core local loop is usable for project-local diagnosis, fixtures, regression checks, playbook learning, public candidate gating, pending profile-memory suggestions, local eval review metadata, experimental/internal adapter export drafts, and read-only diagnosis calibration fixtures.
 
 The current package version is `0.3.0`.
 
 ## Install
+
+Repository:
+
+```text
+https://github.com/taiyuli3131/intent-quality
+```
+
+Clone and install the Python CLI:
+
+```bash
+git clone https://github.com/taiyuli3131/intent-quality.git
+cd intent-quality
+python -m pip install -e .
+```
 
 From a local checkout:
 
@@ -31,6 +45,18 @@ python -m intent_quality.cli --help
 ## Codex Plugin
 
 This repository also includes a Codex plugin manifest and an `intent-quality` skill.
+
+Plugin source:
+
+```text
+https://github.com/taiyuli3131/intent-quality.git
+```
+
+Skill directory:
+
+```text
+https://github.com/taiyuli3131/intent-quality/tree/master/skills/intent-quality
+```
 
 After installing the plugin in Codex, use:
 
@@ -212,38 +238,7 @@ The MVP keeps mutating behavior narrow. `diagnose` writes only diagnosis reports
 
 `adapter export` can emit experimental/internal draft mappings for `promptfoo`, `deepeval`, and `pydantic-evals`. These files are for inspection and future integration planning only. They do not run external frameworks, do not add core runtime dependencies, do not replace the default heuristic scorer, and do not apply results automatically.
 
-## v0.2 Reliability Baseline
-
-v0.2 is a reliability hardening release for the local loop. It is not a platformization release.
-
-Current v0.2 baselines:
-
-- `v0.2-alpha`: public sync reliability hardening, baselined in commit `1dcc977`;
-- `v0.2-beta`: eval scorer reliability hardening, baselined in commit `ee050c9`.
-
-Public sync now has a stricter gate before suggestions are generated:
-
-- fetch the public index;
-- fetch or stage matching candidate content;
-- verify `content_sha256`;
-- reject invalid YAML or schema mismatches;
-- block privacy and poisoning risks;
-- require relevance explanation;
-- write only untrusted external candidates and pending suggestions.
-
-Eval scoring now records more inspectable regression output:
-
-- stable result IDs;
-- `pass`, `fail`, and `needs_review` status;
-- passed, missing, forbidden, and blocking observations;
-- failure codes;
-- evidence excerpts and matched markers;
-- dimension rationales;
-- scorer limitations.
-
-The scorer remains a heuristic marker-based regression scorer. It is useful for repeatable collaboration-quality checks, but it is not a complete semantic evaluator.
-
-## v0.3 Candidate Scope
+## v0.3 Release Scope
 
 v0.3 keeps the same local-first safety model while adding the user-facing diagnosis and review layers needed for a candidate release:
 
@@ -252,19 +247,21 @@ v0.3 keeps the same local-first safety model while adding the user-facing diagno
 - profile memory remains project-local, pending, evidence-backed, rollback-described, and confirmation-gated;
 - eval review adds local human-review metadata for `needs_review` outputs, including reviewer notes and calibration notes, without changing the default heuristic scorer;
 - adapter export emits experimental/internal draft mappings for Promptfoo, DeepEval, and Pydantic Evals without running those frameworks or making them core runtime dependencies;
-- `check` remains read-only and validates the public sync, eval response, eval review, diagnosis quality, profile memory, adapter export, and playbook fixtures.
+- `check` remains read-only and validates the public sync, eval response, eval review, diagnosis quality, diagnosis calibration, profile memory, adapter export, and playbook fixtures.
 
 v0.3 does not add a hosted platform, dashboard, automatic public upload, automatic public-sample adoption, automatic profile/rule/dataset/casebook/rubric/contribution mutation, default LLM-as-judge scoring, or complete semantic evaluation.
 
-v0.2 does not change the safety model:
+See [docs/release-v0.3.md](docs/release-v0.3.md) for release notes and [docs/release-v0.2.md](docs/release-v0.2.md) for the v0.2 reliability baseline.
 
-- no hosted accounts;
-- no full dashboard;
-- no automatic public uploads;
-- no automatic public-sample adoption;
-- no automatic profile, rule, dataset, casebook, rubric, or contribution mutation.
+## v0.4 P0 Diagnosis Calibration
 
-All local adoption, rule/profile changes, accepted dataset or casebook changes, and contribution actions still require user confirmation.
+v0.4 P0 adds a synthetic, read-only calibration fixture layer for diagnosis quality.
+
+It checks whether diagnosis-like examples are `ready`, `needs_review`, or `blocked` based on schema coverage, readiness, confidence range, finding structure, premise status, completion questions, authorization scope, privacy/redaction blockers, and candidate-gate blockers.
+
+The calibration layer does not generate or approve real fixtures, write feedback, auto-adopt candidates, add LLM-as-judge scoring, or mutate fixture, candidate, memory, profile, rule, dataset, casebook, rubric, contribution, public, suggestion, or accepted local state.
+
+See [docs/v0.4-diagnosis-quality.md](docs/v0.4-diagnosis-quality.md).
 
 ## Diagnose Versus Eval
 
@@ -345,8 +342,12 @@ Current local playbook pages:
 
 - [PROJECT-INFO.md](PROJECT-INFO.md): product overview and document map.
 - [PRODUCT-SPEC.md](PRODUCT-SPEC.md): active product specification.
+- [ACCEPTANCE.md](ACCEPTANCE.md): public acceptance summary.
 - [SCHEMAS.md](SCHEMAS.md): YAML-first local file schemas.
 - [DIAGNOSE-EVAL-FLOW.md](DIAGNOSE-EVAL-FLOW.md): operational flow.
+- [docs/release-v0.3.md](docs/release-v0.3.md): v0.3 release notes.
+- [docs/v0.3-roadmap.md](docs/v0.3-roadmap.md): public v0.3 roadmap.
+- [docs/v0.4-diagnosis-quality.md](docs/v0.4-diagnosis-quality.md): v0.4 P0 diagnosis calibration scope.
 
 Historical notes are kept as context, but the active product shape is defined by the files above.
 

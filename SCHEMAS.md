@@ -1,6 +1,6 @@
 # Intent Quality Schemas
 
-> Updated: 2026-06-16
+> Updated: 2026-06-22
 > Format: YAML-first, with Markdown reports for human reading
 
 ## 1. Local Directory
@@ -227,6 +227,139 @@ generated_candidates:
       included_dimensions:
         - authorization_boundary
 ```
+
+## 2.1 Diagnosis Calibration Fixture
+
+v0.4 P0 adds synthetic calibration fixtures for diagnosis-quality checks. These files are check inputs only; they are not accepted casebook entries, eval samples, feedback, memory, rules, or contribution packages.
+
+```yaml
+schema_version: 0.4.0-alpha
+fixture_id: diag_cal_ready_auth_boundary_001
+title: "Ready authorization-boundary calibration case"
+expected_status: ready # ready | needs_review | blocked
+
+source:
+  type: manual # manual | conversation | project
+  input_summary: "The user asked for discussion only while the Agent updated files."
+  permission_scope: user_supplied_description # user_supplied_description | project_readonly | conversation_readonly
+
+readiness:
+  status: ready
+  requires_manual_completion: false
+  rationale: "The expected mode, actual mode, authorization boundary, and evidence are present."
+
+authorization_scope:
+  boundary_status: exceeded
+  expected_scope: discussion
+  actual_scope: file_update
+  targets:
+    files:
+      status: denied
+      may_modify: false
+      requires_user_confirmation: true
+    profile:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    rules:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    datasets:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    casebooks:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    rubrics:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    contributions:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    public_samples:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+
+confidence_calibration:
+  level: high # high | medium | low
+  score: 0.91
+  rule: "High confidence requires explicit mode evidence plus action evidence."
+
+finding_requirements:
+  required:
+    - authorization_boundary
+  optional:
+    - response_mode_mismatch
+  forbidden:
+    - privacy_redaction
+    - candidate_gate
+
+findings:
+  - id: F001
+    kind: required # required | optional | forbidden
+    dimension: authorization_boundary
+    severity: high
+    confidence: high
+    conclusion: "Discussion-only wording was followed by file-update behavior."
+    evidence:
+      - id: E001
+        source_type: user_message
+        evidence_type: authorization_signal
+        premise_status: user-stated
+        excerpt: "Discuss the direction only and do not edit files yet."
+    premise_status: inferred
+
+premises:
+  - id: P001
+    statement: "The expected mode was discussion."
+    status: user-stated # user-stated | inferred | assumed | verified | unknown
+    confidence: high
+    evidence:
+      - E001
+
+completion_questions: []
+
+privacy:
+  redaction_status: clear # clear | needs_redaction | blocked
+  detected_flags: []
+  requires_user_review: false
+
+generated_candidates:
+  - type: case
+    artifact_type: casebook_entry
+    status: preview_only
+    requires_user_confirmation: true
+    auto_apply: false
+    writes_local_asset: false
+    gate:
+      status: passed # passed | needs_review | blocked
+      requires_user_confirmation: true
+      adoption_allowed_without_confirmation: false
+
+safety:
+  read_only_fixture: true
+  generates_real_fixture: false
+  writes_feedback: false
+  default_llm_as_judge: false
+  claims_semantic_evaluator: false
+  auto_adopts_candidate: false
+```
+
+Blocked calibration fixtures may declare:
+
+```yaml
+blockers:
+  - privacy_redaction
+  - candidate_gate
+```
+
+The checker must treat these as gate outcomes, not as permission to mutate or adopt anything. Candidate-gate blockers include `auto_apply: true`, `writes_local_asset: true`, `requires_user_confirmation: false`, or `adoption_allowed_without_confirmation: true`.
 
 ## 3. Case
 

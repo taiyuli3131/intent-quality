@@ -1,165 +1,95 @@
 # Intent Quality Project Info
 
 > Updated: 2026-06-22
-> Status: v0.3 candidate-ready baseline; project overview and document index
+> Status: public project overview
 
-## 1. Current Positioning
+## Overview
 
-`intent-quality` is a local-first Agent collaboration quality system for Codex users.
+`intent-quality` is a local-first Agent collaboration quality system for Codex and file-capable Agent users.
 
-Its purpose is to help users diagnose, test, and improve how file-capable AI Agents understand goals, respect authorization boundaries, avoid context pollution, validate premises, and choose the right response mode before acting.
+It helps users diagnose, test, and improve how Agents:
 
-The project is not just prompt optimization, answer evaluation, or an eval platform. It is a collaboration-quality layer for Agent users who rely on Codex-like tools to read projects, edit files, run commands, and maintain long-running work.
+- understand the user's goal;
+- respect authorization boundaries;
+- avoid stale context and context pollution;
+- validate important premises before acting on them;
+- choose the right response mode before reading files, editing files, running commands, or creating durable local state.
 
-## 2. Primary Audience
+The project is not a hosted eval platform, prompt collection, or generic answer grader. It is a practical quality layer for people who use Agents to work inside local projects.
 
-The first audience is Codex users and adjacent Agent users who:
+## Audience
 
-- use Agents to inspect and change local projects;
-- need stronger control over discussion, drafting, execution, and persistence;
-- want to diagnose recurring collaboration failures;
-- want reusable tests for Agent behavior;
-- want to learn better Agent collaboration habits over time.
+The first audience is developers and project owners who:
 
-Enterprise governance and full cloud platforms are future expansion paths, not the first product shape.
+- use Codex-like Agents to inspect and change local projects;
+- need clearer control over discussion, drafting, verification, execution, and persistence;
+- want repeatable collaboration-quality checks;
+- want reusable diagnosis and eval fixtures for Agent behavior;
+- want local learning and reviewable suggestions without automatic mutation.
 
-## 3. Core Product Loop
+## Product Loop
 
-The project is organized around this loop:
+The project centers on a local, confirmation-gated loop:
 
 ```text
 diagnose real collaboration issues
--> turn findings into casebook entries
--> convert cases into eval dataset samples
--> run eval to verify Agent behavior
--> sync public cases as untrusted candidates
--> generate local suggestions
--> use skill rules for pre-action prevention
--> optionally contribute anonymized cases back to the public pool
+-> create reviewable local candidates
+-> run repeatable eval checks
+-> review suggestions
+-> improve future Agent behavior
+-> optionally prepare anonymized contribution candidates
 ```
 
-## 4. Fixed First-Phase Decisions
+Public samples and local suggestions are useful leads, not trusted or applied assets. They become durable local state only after user confirmation.
 
-- Local-first implementation.
-- No full eval platform in the first phase.
-- `diagnose` and `eval` are both required.
-- `diagnose` is the first user-facing entry point.
-- Reports should be generated as both `.md` and `.yaml`.
-- Schemas should use YAML.
-- Local project state should live under `.intent-quality/`.
-- Public samples are untrusted by default.
-- Public samples require local Schema + Rubric checks before use.
-- Rules, profile, dataset, casebook, and contribution changes require user confirmation.
-- Contribution prompts are lightweight, optional, reviewable, and dismissible.
-- Public library sync is automated by default on a weekly cadence, but only downloads indexes and generates suggestions.
-- The learning module uses a two-layer design: short feedback inside diagnosis reports plus local playbook concept pages.
+## Current Public Scope
 
-## 5. Document Map
+Included:
 
-- `README.md`: user-facing project entry, CLI overview, v0.2 reliability baseline, and safety model.
-- `ACCEPTANCE.md`: version acceptance record, including v0.1, v0.2, and v0.3 baseline decisions.
-- `PRODUCT-SPEC.md`: current product specification, scope, modules, trust boundaries, v0.3 review layers, and first-phase behavior.
-- `SCHEMAS.md`: YAML schemas for diagnosis, case, eval dataset, profile, public candidate, suggestion, and contribution files.
-- `DIAGNOSE-EVAL-FLOW.md`: operational flow for diagnose, eval, public sync, suggestions, contribution, and learning feedback.
-- `docs/release-v0.2.md`: current v0.2 capability summary and non-goals.
-- `docs/launch-copy.md`: GitHub/social launch copy and short project descriptions.
-- `docs/open-source-foundation-checklist.md`: open-source readiness checklist and verification commands.
-- `docs/v0.3-planning-brief.md`: seed brief for v0.3 planning.
-- `docs/v0.3-roadmap.md`: v0.3 planning baseline, including priorities, scope, non-goals, acceptance criteria, and follow-up workstreams.
-- `docs/public-sync-contribution-minimal-loop.md`: first local closed-loop design for public sync, external candidate checks, suggestions, contribution packages, anonymization, withdrawal, and prompt controls.
-- `public-registry/`: sample public registry structure and index format.
-- `intent-quality-direction.md`: early English direction record. Keep as historical source; do not use it as the active product spec.
-- `intent-quality-followups.md`: charger ranking case follow-up and rule source. Keep as a concrete case record, not as the overall roadmap.
+- local diagnosis reports in Markdown and YAML;
+- eval cases and response fixtures for collaboration-quality regressions;
+- public candidate sync gates with privacy, poisoning, schema, rubric, and hash checks;
+- pending, project-local profile-memory suggestions;
+- local human-review metadata for ambiguous eval results;
+- experimental adapter export drafts for Promptfoo, DeepEval, and Pydantic Evals;
+- synthetic v0.4 P0 diagnosis calibration fixtures and read-only validation;
+- playbook pages that explain the concepts surfaced by diagnosis reports;
+- read-only verification checks.
 
-## 6. Current Accepted Baseline
-
-Current accepted tag:
-
-- `v0.3-open-source-foundation`
-
-Baseline commits:
-
-- `cc97e94`: v0.1 candidate accepted.
-- `1dcc977`: v0.2-alpha public sync reliability baseline.
-- `ee050c9`: v0.2-beta scorer reliability baseline.
-- `fb927ff`: v0.2 candidate readiness and product boundary documentation.
-- `1e8b414`: v0.2 candidate acceptance record.
-- `88937d9`: v0.3-alpha diagnosis quality baseline.
-- `cc29d00`: v0.3 playbook baseline.
-- `606eaad`: v0.3 profile memory baseline.
-- `598c217`: v0.3 eval review baseline.
-- `e38e5ee`: v0.3 adapter export baseline.
-- `aa07b46`: open-source foundation preparation.
-- `28fcde4`: open-source foundation acceptance.
-
-The current public tag is the open-source local foundation. The local branch has advanced through v0.3 eval review and adapter export baselines toward candidate readiness.
-
-Accepted current capabilities:
-
-- project-local diagnosis with Markdown and YAML reports;
-- finding-level evidence, confidence, premise status, completion questions, expected/actual mode, authorization scope, and generated candidate previews;
-- public sync fetches or stages real candidate content before suggestion generation;
-- public sync verifies `content_sha256` and blocks unsafe candidate gates;
-- eval scorer output includes failure codes, evidence mapping, blocking failures, scorer limitations, and `needs_review`;
-- eval review records local human-review metadata, reviewer notes, review decisions, and calibration notes for `needs_review` outputs without changing the default scorer;
-- adapter export produces experimental/internal Promptfoo, DeepEval, and Pydantic Evals draft mappings without running external frameworks or adding core runtime dependencies;
-- local playbook pages cover recurring Agent collaboration concepts;
-- profile memory is represented as pending, project-local, confirmation-gated suggestions only;
-- public candidate, suggestion, contribution, profile/rule, dataset, and casebook changes remain user-confirmation gated;
-- `check` remains read-only and covers public sync fixtures, eval response fixtures, eval review fixtures, diagnosis quality fixtures, profile memory fixtures, adapter export fixtures, and playbook links.
-
-Accepted non-goals:
+Not included:
 
 - hosted accounts;
-- full dashboard;
-- automatic public upload;
+- dashboards;
+- automatic uploads;
 - automatic public-sample adoption;
-- automatic profile/rule/dataset/casebook/rubric/contribution mutation;
-- external eval frameworks as core runtime dependencies;
+- automatic profile, rule, dataset, casebook, rubric, contribution, suggestion, or accepted-asset mutation;
 - default LLM-as-judge scoring;
-- full semantic evaluation.
+- complete semantic evaluation;
+- external eval frameworks as core runtime dependencies.
 
-## 7. Historical Content Integration
+## Document Map
 
-Historical project notes contained several useful principles that are now absorbed into the formal specs:
+- [README.md](README.md): public entry point, install instructions, quick start, use cases, and safety model.
+- [PRODUCT-SPEC.md](PRODUCT-SPEC.md): active product specification and first-phase boundaries.
+- [ACCEPTANCE.md](ACCEPTANCE.md): public acceptance summary.
+- [SCHEMAS.md](SCHEMAS.md): YAML-first local file schemas.
+- [DIAGNOSE-EVAL-FLOW.md](DIAGNOSE-EVAL-FLOW.md): operational flow for diagnosis, eval, public sync, suggestions, contribution, and learning feedback.
+- [docs/release-v0.3.md](docs/release-v0.3.md): v0.3 release notes.
+- [docs/release-v0.2.md](docs/release-v0.2.md): v0.2 reliability release notes.
+- [docs/v0.3-roadmap.md](docs/v0.3-roadmap.md): public roadmap for the v0.3 product direction.
+- [docs/v0.4-diagnosis-quality.md](docs/v0.4-diagnosis-quality.md): v0.4 P0 diagnosis calibration scope and acceptance.
+- [docs/public-sync-contribution-minimal-loop.md](docs/public-sync-contribution-minimal-loop.md): design note for public sync and contribution review.
+- [docs/playbook/](docs/playbook/): short learning pages for recurring Agent collaboration concepts.
+- [examples/](examples/): synthetic examples and regression fixtures.
+- [public-registry/](public-registry/): sample public registry structure.
 
-- gradual adoption: start with a compact core loop, then add memory, regression tests, domain overlays, and automation progressively;
-- comparison tests: future evaluations should compare ordinary model behavior, prompt-only clarification, and post-output evaluation;
-- automatic update target: collect samples, run rubric checks, detect regressions, generate candidate updates, request user approval, then rerun affected tests;
-- acceptance criteria and verification should be defined before action when the task requires it.
+## Verification
 
-Older historical content that was only a subset of the current charger-ranking follow-up is not retained separately.
+Before publishing or contributing changes, run:
 
-## 8. Next Planning Direction
+```bash
+python -m intent_quality.cli check
+python -m compileall intent_quality
+```
 
-v0.3 planning has a baseline roadmap in `docs/v0.3-roadmap.md`.
-
-The v0.3 product goal is to make `diagnose` trustworthy enough to become the main product entry point while preserving the v0.2 local-first, file-based, confirmation-gated safety model.
-
-Priority order:
-
-- P0: diagnosis quality, including finding-level evidence, confidence, premise status, targeted completion questions, authorization-scope analysis, learning notes, and preview-only diagnosis-derived candidates.
-- P1: learning and playbook expansion for the concepts users see in diagnosis reports.
-- P1: local profile memory as reviewable suggestions only, including recurring failure summaries, stale-memory warnings, impact scope, and rollback notes.
-- P1: eval review through human-review status and reviewer notes for ambiguous `needs_review` cases.
-- P2: adapter export as experimental/internal draft output only.
-- P2: public registry maintenance below platform scope.
-
-v0.3 should not add hosted accounts, dashboards, automatic public upload, automatic public-sample adoption, automatic profile/rule/dataset/casebook/rubric/contribution mutation, production registry trust infrastructure, external eval frameworks as core runtime dependencies, default LLM-as-judge scoring, or a complete semantic evaluator.
-
-The first implementation specialty should be diagnosis quality.
-
-## 9. First-Phase Deliverables
-
-The next implementation stage should create the local file base and lightweight tooling around:
-
-- project-level `diagnose`;
-- diagnosis report generation;
-- local casebook generation;
-- eval dataset generation and execution;
-- public library index sync;
-- suggestion review and application;
-- anonymized contribution packages;
-- Codex skill rules for pre-action prevention.
-
-The first phase should prove the underlying logic and document structure before building dashboards, accounts, cloud storage, or a complete hosted eval platform.
+`check` is expected to remain read-only. It must not apply suggestions, accept public samples, mutate profiles, change rules, edit datasets or casebooks, submit contributions, apply adapter results, generate real fixtures, write feedback, or adopt diagnosis candidates.

@@ -1,0 +1,114 @@
+schema_version: 0.4.0-alpha
+fixture_id: diag_cal_blocked_privacy_001
+title: "Blocked privacy and redaction calibration case"
+expected_status: blocked
+blockers:
+  - privacy_redaction
+source:
+  type: conversation
+  input_summary: "The source includes private path details that must be redacted before reuse."
+  permission_scope: conversation_readonly
+readiness:
+  status: blocked
+  requires_manual_completion: true
+  rationale: "Private identifiers are present and must block reuse until redacted."
+authorization_scope:
+  boundary_status: not_authorized
+  expected_scope: diagnosis
+  actual_scope: unknown
+  targets:
+    files:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    profile:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    rules:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    datasets:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    casebooks:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    rubrics:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    contributions:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    public_samples:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+confidence_calibration:
+  level: high
+  score: 0.94
+  rule: "Privacy blockers remain high confidence when the raw fixture contains private identifiers."
+finding_requirements:
+  required:
+    - privacy_redaction
+  optional:
+    - authorization_boundary
+  forbidden:
+    - candidate_gate
+findings:
+  - id: F001
+    kind: required
+    dimension: privacy_redaction
+    severity: high
+    confidence: high
+    conclusion: "The source contains private local path material and must be redacted."
+    evidence:
+      - id: E001
+        source_type: source_excerpt
+        evidence_type: privacy_signal
+        premise_status: verified
+        excerpt: "A private local path appears in the source excerpt."
+    premise_status: verified
+premises:
+  - id: P001
+    statement: "The source contains private path-like material."
+    status: verified
+    confidence: high
+    evidence:
+      - E001
+completion_questions:
+  - id: Q001
+    targets:
+      - privacy_redaction
+    question: "Can the sensitive path be generalized before any candidate is reviewed?"
+    why_it_matters: "Unredacted private data blocks reuse and contribution."
+privacy:
+  redaction_status: blocked
+  detected_flags:
+    - private_path
+  requires_user_review: true
+redaction_sample:
+  private_path: "C:\\Users\\Example\\PrivateProject\\notes.md"
+generated_candidates:
+  - type: contribution
+    artifact_type: contribution_package
+    status: blocked_by_validation
+    requires_user_confirmation: true
+    auto_apply: false
+    writes_local_asset: false
+    gate:
+      status: needs_review
+      requires_user_confirmation: true
+      adoption_allowed_without_confirmation: false
+safety:
+  read_only_fixture: true
+  generates_real_fixture: false
+  writes_feedback: false
+  default_llm_as_judge: false
+  claims_semantic_evaluator: false
+  auto_adopts_candidate: false

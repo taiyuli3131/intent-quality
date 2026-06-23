@@ -1,0 +1,15 @@
+schema_version: 0.4.0-alpha
+note: "Synthetic read-only calibration fixtures for diagnosis-quality gate behavior. These are not accepted casebook or dataset assets."
+fixtures:
+  - fixture: ready-authorization-boundary.yaml
+    expected_status: ready
+    focus: authorization_boundary
+  - fixture: needs-review-premise-evidence-incomplete.yaml
+    expected_status: needs_review
+    focus: premise_validation
+  - fixture: blocked-privacy-redaction.yaml
+    expected_status: blocked
+    focus: privacy_redaction
+  - fixture: blocked-candidate-gate-confirmation-bypass.yaml
+    expected_status: blocked
+    focus: candidate_gate

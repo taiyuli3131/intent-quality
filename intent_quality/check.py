@@ -21,6 +21,10 @@ from .schemas import (
 )
 from .eval import evaluate_dataset
 from .diagnose import build_diagnosis
+from .diagnosis_calibration import (
+    evaluate_calibration_fixture,
+    validate_calibration_manifest,
+)
 from .render import render_diagnosis_markdown
 
 
@@ -67,6 +71,13 @@ EXPECTED_ADAPTER_EXPORT_FIXTURES = {
     "pydantic-evals.yaml": "pydantic-evals",
 }
 
+EXPECTED_DIAGNOSIS_CALIBRATION_FIXTURES = {
+    "ready-authorization-boundary.yaml": "ready",
+    "needs-review-premise-evidence-incomplete.yaml": "needs_review",
+    "blocked-privacy-redaction.yaml": "blocked",
+    "blocked-candidate-gate-confirmation-bypass.yaml": "blocked",
+}
+
 
 def run_check(args: Any) -> int:
     root = find_project_root(Path(args.root) if args.root else None)
@@ -78,6 +89,7 @@ def run_check(args: Any) -> int:
     errors.extend(check_eval_response_fixtures(root))
     errors.extend(check_eval_review_fixtures(root))
     errors.extend(check_diagnosis_quality_fixtures(root))
+    errors.extend(check_diagnosis_calibration_fixtures(root))
     errors.extend(check_profile_memory_fixtures(root))
     errors.extend(check_adapter_export_fixtures(root))
     errors.extend(check_playbook_pages(root))
@@ -89,7 +101,7 @@ def run_check(args: Any) -> int:
         return 1
 
     print("local loop checks passed")
-    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures, eval review fixtures, diagnosis quality fixtures, profile memory fixtures, adapter export fixtures, playbook links")
+    print("checked: public index, public cases, external candidates, suggestions, contribution packages, public sync fixtures, eval response fixtures, eval review fixtures, diagnosis quality fixtures, diagnosis calibration fixtures, profile memory fixtures, adapter export fixtures, playbook links")
     print("mode: read-only; no rules, profiles, datasets, casebooks, candidates, suggestions, or submissions were modified")
     return 0
 
@@ -334,6 +346,43 @@ def check_profile_memory_fixtures(root: Path) -> list[str]:
     return errors
 
 
+def check_diagnosis_calibration_fixtures(root: Path) -> list[str]:
+    fixture_dir = root / "examples" / "diagnosis-calibration-fixtures"
+    manifest_path = fixture_dir / "manifest.yaml"
+    if not manifest_path.exists():
+        return [f"{manifest_path}: missing diagnosis calibration fixture manifest"]
+
+    manifest = load_yaml(manifest_path)
+    errors: list[str] = []
+    errors.extend(validate_calibration_manifest(manifest, str(manifest_path)))
+    expected = {
+        item["fixture"]: item["expected_status"]
+        for item in manifest.get("fixtures", [])
+        if isinstance(item, dict) and "fixture" in item and "expected_status" in item
+    } or EXPECTED_DIAGNOSIS_CALIBRATION_FIXTURES
+
+    before = protected_snapshot(root)
+    for filename, expected_status in expected.items():
+        path = fixture_dir / filename
+        if not path.exists():
+            errors.append(f"{path}: missing diagnosis calibration fixture")
+            continue
+        fixture = load_yaml(path)
+        if not isinstance(fixture, dict):
+            errors.append(f"{path}: fixture must be a YAML mapping")
+            continue
+        actual_status, fixture_errors = evaluate_calibration_fixture(fixture, str(path))
+        errors.extend(fixture_errors)
+        if actual_status != expected_status:
+            errors.append(f"{path}: expected calibration status {expected_status}, got {actual_status}")
+        if fixture.get("expected_status") != expected_status:
+            errors.append(f"{path}: fixture expected_status must match manifest expected_status")
+    after = protected_snapshot(root)
+    if before != after:
+        errors.append("diagnosis calibration fixture check modified protected local assets")
+    return errors
+
+
 def check_adapter_export_fixtures(root: Path) -> list[str]:
     fixture_dir = root / "examples" / "adapter-export-fixtures"
     if not fixture_dir.exists():
@@ -398,6 +447,7 @@ def protected_snapshot(root: Path) -> dict[str, str]:
         root / "cases",
         root / "rubrics",
         root / "public-registry",
+        root / "examples",
     ]
     snapshot: dict[str, str] = {}
     for base in protected:

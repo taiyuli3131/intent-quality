@@ -46,6 +46,15 @@ diagnose with evidence, confidence, premise status, and completion questions
 -> validate the loop with read-only checks
 ```
 
+v0.4 P0 adds a diagnosis calibration check layer:
+
+```text
+synthetic diagnosis calibration fixtures
+-> validate readiness, evidence, confidence, premise status, authorization scope, privacy, and candidate gates
+-> classify as ready, needs_review, or blocked
+-> confirm protected local assets were not modified
+```
+
 ## 2. Diagnose
 
 `diagnose` analyzes real usage.
@@ -78,6 +87,8 @@ Diagnosis should produce:
 - optional profile or rule suggestions.
 
 Manual diagnosis should be allowed, but incomplete input must produce lower-confidence findings and targeted completion questions.
+
+Diagnosis calibration fixtures are not diagnosis outputs. They are synthetic read-only examples used by `check` to verify that diagnosis-quality gates handle ready, incomplete, privacy-blocked, and candidate-gate-blocked cases.
 
 ## 3. Eval
 
@@ -382,4 +393,5 @@ After documentation or tooling changes, review:
 - whether diagnosis and eval are clearly separated but connected;
 - whether eval review remains local human-review metadata rather than a full semantic evaluator;
 - whether adapter export remains experimental/internal and optional;
-- whether `check` remains read-only and covers eval review and adapter export fixtures.
+- whether diagnosis calibration remains synthetic and does not generate or approve real fixtures;
+- whether `check` remains read-only and covers eval review, diagnosis calibration, and adapter export fixtures.

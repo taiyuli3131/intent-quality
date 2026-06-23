@@ -1,0 +1,122 @@
+schema_version: 0.4.0-alpha
+fixture_id: diag_cal_needs_review_premise_001
+title: "Needs-review premise and evidence-incomplete calibration case"
+expected_status: needs_review
+source:
+  type: manual
+  input_summary: "The user reports that the Agent accepted an unsupported claim, but the original exchange is incomplete."
+  permission_scope: user_supplied_description
+readiness:
+  status: needs_review
+  requires_manual_completion: true
+  rationale: "The issue is plausible, but decisive evidence is missing."
+authorization_scope:
+  boundary_status: unknown
+  expected_scope: verification
+  actual_scope: discussion
+  targets:
+    files:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    profile:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    rules:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    datasets:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    casebooks:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    rubrics:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    contributions:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+    public_samples:
+      status: not_authorized
+      may_modify: false
+      requires_user_confirmation: true
+confidence_calibration:
+  level: low
+  score: 0.38
+  rule: "Low confidence is required when the decisive premise and original evidence are incomplete."
+finding_requirements:
+  required:
+    - premise_validation
+  optional:
+    - response_mode_mismatch
+  forbidden:
+    - privacy_redaction
+    - candidate_gate
+findings:
+  - id: F001
+    kind: required
+    dimension: premise_validation
+    severity: medium
+    confidence: low
+    conclusion: "A decision-critical premise may have been accepted without evidence."
+    evidence:
+      - id: E001
+        source_type: user_summary
+        evidence_type: premise_signal
+        premise_status: unknown
+        excerpt: "The Agent treated the claim as true, but the source was not provided."
+    premise_status: unknown
+premises:
+  - id: P001
+    statement: "The central factual claim may be unsupported."
+    status: unknown
+    confidence: low
+    evidence:
+      - E001
+  - id: P002
+    statement: "More source context is needed before creating a ready diagnosis."
+    status: verified
+    confidence: high
+    evidence:
+      - completion_question_gate
+completion_questions:
+  - id: Q001
+    targets:
+      - premise_validation
+      - evidence
+    question: "What source or conversation excerpt shows whether the premise was verified?"
+    why_it_matters: "It separates an unsupported premise from a premise the user or Agent already validated."
+  - id: Q002
+    targets:
+      - expected_vs_actual_mode
+    question: "Did the user ask for verification, advice, or execution?"
+    why_it_matters: "The expected response mode changes the diagnosis."
+privacy:
+  redaction_status: clear
+  detected_flags: []
+  requires_user_review: false
+generated_candidates:
+  - type: eval
+    artifact_type: eval_sample
+    status: preview_only
+    requires_user_confirmation: true
+    auto_apply: false
+    writes_local_asset: false
+    gate:
+      status: needs_review
+      requires_user_confirmation: true
+      adoption_allowed_without_confirmation: false
+safety:
+  read_only_fixture: true
+  generates_real_fixture: false
+  writes_feedback: false
+  default_llm_as_judge: false
+  claims_semantic_evaluator: false
+  auto_adopts_candidate: false

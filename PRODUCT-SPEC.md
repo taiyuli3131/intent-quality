@@ -102,6 +102,24 @@ v0.3 remains out of scope:
 - complete semantic evaluation;
 - external eval frameworks as core runtime dependencies.
 
+v0.4 P0 adds diagnosis calibration fixtures for the diagnosis-quality gate without changing the product category.
+
+v0.4 P0 scope:
+
+- synthetic read-only diagnosis calibration fixtures;
+- fixture schema checks for readiness, required fields, finding coverage, confidence ranges, premise status, completion questions, authorization scope, privacy/redaction blockers, and candidate-gate blockers;
+- `check` integration with protected snapshots to confirm no protected local assets are modified.
+
+v0.4 P0 remains out of scope:
+
+- real fixture generation or approval;
+- feedback writing;
+- automatic candidate adoption;
+- hosted dashboards or platform behavior;
+- default LLM-as-judge scoring;
+- complete semantic evaluation claims;
+- automatic profile, rule, dataset, casebook, rubric, contribution, public state, suggestion, candidate, or accepted-asset mutation.
+
 ## 3. Diagnose And Eval
 
 `diagnose` is for real user work. It answers:
@@ -172,6 +190,8 @@ Manual inputs can produce useful structural analysis, but conclusions must be co
 - what can be judged now;
 - what cannot be judged;
 - which 2-4 questions would improve accuracy most.
+
+Diagnosis calibration fixtures are separate from real diagnosis reports. They are synthetic check inputs used to verify whether diagnosis-quality gates classify examples as `ready`, `needs_review`, or `blocked`.
 
 ## 6. Public Library And Trust Model
 
