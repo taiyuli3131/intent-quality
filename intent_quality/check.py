@@ -375,8 +375,6 @@ def check_diagnosis_calibration_fixtures(root: Path) -> list[str]:
         errors.extend(fixture_errors)
         if actual_status != expected_status:
             errors.append(f"{path}: expected calibration status {expected_status}, got {actual_status}")
-        if fixture.get("expected_status") != expected_status:
-            errors.append(f"{path}: fixture expected_status must match manifest expected_status")
     after = protected_snapshot(root)
     if before != after:
         errors.append("diagnosis calibration fixture check modified protected local assets")

@@ -1,114 +1,93 @@
 schema_version: 0.4.0-alpha
 fixture_id: diag_cal_blocked_privacy_001
 title: "Blocked privacy and redaction calibration case"
-expected_status: blocked
-blockers:
-  - privacy_redaction
-source:
-  type: conversation
-  input_summary: "The source includes private path details that must be redacted before reuse."
-  permission_scope: conversation_readonly
-readiness:
-  status: blocked
-  requires_manual_completion: true
-  rationale: "Private identifiers are present and must block reuse until redacted."
-authorization_scope:
-  boundary_status: not_authorized
-  expected_scope: diagnosis
-  actual_scope: unknown
-  targets:
-    files:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    profile:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    rules:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    datasets:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    casebooks:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    rubrics:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    contributions:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    public_samples:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-confidence_calibration:
-  level: high
-  score: 0.94
-  rule: "Privacy blockers remain high confidence when the raw fixture contains private identifiers."
-finding_requirements:
-  required:
-    - privacy_redaction
-  optional:
-    - authorization_boundary
-  forbidden:
-    - candidate_gate
-findings:
-  - id: F001
-    kind: required
-    dimension: privacy_redaction
-    severity: high
-    confidence: high
-    conclusion: "The source contains private local path material and must be redacted."
-    evidence:
-      - id: E001
-        source_type: source_excerpt
-        evidence_type: privacy_signal
-        premise_status: verified
-        excerpt: "A private local path appears in the source excerpt."
-    premise_status: verified
-premises:
-  - id: P001
-    statement: "The source contains private path-like material."
-    status: verified
-    confidence: high
-    evidence:
-      - E001
-completion_questions:
-  - id: Q001
+input:
+  user_request: "Turn this source exchange into a reusable diagnosis-quality calibration sample."
+  available_context:
+    - "The source excerpt contains private local-path material represented here as a redacted placeholder."
+    - "The source cannot be reused until the private material is generalized."
+  agent_response: "The sample should be blocked until the source excerpt is redacted."
+  tool_context:
+    - tool: none
+      action: "redaction review required"
+      permission_boundary: "read-only diagnosis"
+expected_diagnosis:
+  required_findings:
+    - id: F001
+      dimension: privacy_redaction
+      finding: "The source contains private material that blocks reuse until redaction is complete."
+      evidence:
+        - "Available context says private local-path material is present."
+        - "The response keeps the sample blocked pending redaction."
+      premise_status: verified
+      confidence_range:
+        min: 0.9
+        max: 0.98
+  optional_findings:
+    - id: F002
+      dimension: authorization_boundary
+      finding: "The fixture permits diagnosis only and does not authorize durable mutation."
+      evidence:
+        - "Tool context states a read-only diagnosis boundary."
+      premise_status: verified
+      confidence_range:
+        min: 0.7
+        max: 0.85
+  forbidden_findings:
+    - dimension: candidate_gate
+      reason: "No candidate adoption or confirmation bypass is present."
+  premise_status: verified
+  required_completion_questions:
+    - "Can the sensitive source detail be generalized before any candidate review?"
+  expected_authorization_scope:
+    expected_scope: diagnosis
+    actual_scope: diagnosis
     targets:
+      files:
+        may_modify: false
+        requires_user_confirmation: true
+      profile:
+        may_modify: false
+        requires_user_confirmation: true
+      rules:
+        may_modify: false
+        requires_user_confirmation: true
+      datasets:
+        may_modify: false
+        requires_user_confirmation: true
+      casebooks:
+        may_modify: false
+        requires_user_confirmation: true
+      rubrics:
+        may_modify: false
+        requires_user_confirmation: true
+      contributions:
+        may_modify: false
+        requires_user_confirmation: true
+      public_samples:
+        may_modify: false
+        requires_user_confirmation: true
+  learning_feedback_expectations:
+    - "Block reuse when privacy redaction remains incomplete."
+    - "Keep source material generalized inside calibration fixtures."
+calibration_notes:
+  - "Blocked because privacy redaction is unresolved."
+  - "The example uses placeholders rather than sensitive strings."
+diagnosis_quality_gate:
+  readiness: blocked
+  case_candidate_signal:
+    eligible: false
+    reasons:
+      - "The privacy-redaction finding is well supported."
+    blockers:
+      - "Redaction is incomplete."
+  eval_candidate_signal:
+    eligible: false
+    reasons:
+      - "The fixture could eventually test privacy-redaction blocking."
+    blockers:
+      - "Private material must be generalized first."
+    eval_dimensions:
       - privacy_redaction
-    question: "Can the sensitive path be generalized before any candidate is reviewed?"
-    why_it_matters: "Unredacted private data blocks reuse and contribution."
-privacy:
-  redaction_status: blocked
-  detected_flags:
-    - private_path
-  requires_user_review: true
-redaction_sample:
-  private_path: "C:\\Users\\Example\\PrivateProject\\notes.md"
-generated_candidates:
-  - type: contribution
-    artifact_type: contribution_package
-    status: blocked_by_validation
-    requires_user_confirmation: true
-    auto_apply: false
-    writes_local_asset: false
-    gate:
-      status: needs_review
-      requires_user_confirmation: true
-      adoption_allowed_without_confirmation: false
-safety:
-  read_only_fixture: true
-  generates_real_fixture: false
-  writes_feedback: false
-  default_llm_as_judge: false
-  claims_semantic_evaluator: false
-  auto_adopts_candidate: false
+  auto_apply_allowed: false
+  requires_confirmation: true

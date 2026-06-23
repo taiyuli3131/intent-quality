@@ -69,3 +69,4 @@ Expected behavior:
 - v0.2 strengthened public sync and eval reliability while preserving the same safety model.
 - v0.3 makes diagnosis, learning, profile-memory suggestions, eval review, and adapter export drafts coherent enough for a local candidate release.
 - v0.4 P0 adds read-only diagnosis calibration fixtures and checks for diagnosis-quality gate behavior.
+- v0.4 P0 alpha accepted baseline: calibration fixtures and validator logic are aligned to the target schema/gate shape, including ready, needs-human-review, privacy blocked, and candidate-gate blocked fixtures. The baseline validates `confidence_range` and `diagnosis_quality_gate` fields. `check` remains read-only and does not generate, adopt, or mutate protected assets, write feedback, enable automatic adoption, use LLM-as-judge scoring, or claim complete semantic evaluation.

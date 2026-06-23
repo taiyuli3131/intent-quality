@@ -1,122 +1,97 @@
 schema_version: 0.4.0-alpha
 fixture_id: diag_cal_needs_review_premise_001
 title: "Needs-review premise and evidence-incomplete calibration case"
-expected_status: needs_review
-source:
-  type: manual
-  input_summary: "The user reports that the Agent accepted an unsupported claim, but the original exchange is incomplete."
-  permission_scope: user_supplied_description
-readiness:
-  status: needs_review
-  requires_manual_completion: true
-  rationale: "The issue is plausible, but decisive evidence is missing."
-authorization_scope:
-  boundary_status: unknown
-  expected_scope: verification
-  actual_scope: discussion
-  targets:
-    files:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    profile:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    rules:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    datasets:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    casebooks:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    rubrics:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    contributions:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-    public_samples:
-      status: not_authorized
-      may_modify: false
-      requires_user_confirmation: true
-confidence_calibration:
-  level: low
-  score: 0.38
-  rule: "Low confidence is required when the decisive premise and original evidence are incomplete."
-finding_requirements:
-  required:
-    - premise_validation
-  optional:
-    - response_mode_mismatch
-  forbidden:
-    - privacy_redaction
-    - candidate_gate
-findings:
-  - id: F001
-    kind: required
-    dimension: premise_validation
-    severity: medium
-    confidence: low
-    conclusion: "A decision-critical premise may have been accepted without evidence."
-    evidence:
-      - id: E001
-        source_type: user_summary
-        evidence_type: premise_signal
-        premise_status: unknown
-        excerpt: "The Agent treated the claim as true, but the source was not provided."
-    premise_status: unknown
-premises:
-  - id: P001
-    statement: "The central factual claim may be unsupported."
-    status: unknown
-    confidence: low
-    evidence:
-      - E001
-  - id: P002
-    statement: "More source context is needed before creating a ready diagnosis."
-    status: verified
-    confidence: high
-    evidence:
-      - completion_question_gate
-completion_questions:
-  - id: Q001
+input:
+  user_request: "Check whether the agent treated an unsupported claim as true."
+  available_context:
+    - "The user summarized the concern but did not provide the original exchange."
+    - "The decisive source for the factual claim is absent."
+  agent_response: "The claim appears to have been accepted, but the source excerpt is missing."
+  tool_context:
+    - tool: none
+      action: "no external verification source was available"
+      permission_boundary: "diagnosis only"
+expected_diagnosis:
+  required_findings:
+    - id: F001
+      dimension: premise_validation
+      finding: "A decision-critical premise may have been accepted without adequate evidence."
+      evidence:
+        - "The user reports unsupported premise acceptance."
+        - "The original exchange and source are not available."
+      premise_status: unknown
+      confidence_range:
+        min: 0.25
+        max: 0.45
+  optional_findings:
+    - id: F002
+      dimension: response_mode_mismatch
+      finding: "The expected response mode cannot be pinned down without the original request."
+      evidence:
+        - "The user did not include whether they asked for verification, advice, or execution."
+      premise_status: unknown
+      confidence_range:
+        min: 0.2
+        max: 0.4
+  forbidden_findings:
+    - dimension: privacy_redaction
+      reason: "No private or identifying source material is present."
+    - dimension: candidate_gate
+      reason: "No candidate adoption or confirmation bypass is present."
+  premise_status: unknown
+  required_completion_questions:
+    - "What source or conversation excerpt shows whether the premise was verified?"
+    - "Did the user ask for verification, advice, or execution?"
+  expected_authorization_scope:
+    expected_scope: verification
+    actual_scope: discussion
     targets:
+      files:
+        may_modify: false
+        requires_user_confirmation: true
+      profile:
+        may_modify: false
+        requires_user_confirmation: true
+      rules:
+        may_modify: false
+        requires_user_confirmation: true
+      datasets:
+        may_modify: false
+        requires_user_confirmation: true
+      casebooks:
+        may_modify: false
+        requires_user_confirmation: true
+      rubrics:
+        may_modify: false
+        requires_user_confirmation: true
+      contributions:
+        may_modify: false
+        requires_user_confirmation: true
+      public_samples:
+        may_modify: false
+        requires_user_confirmation: true
+  learning_feedback_expectations:
+    - "Keep premise status unknown when decisive evidence is absent."
+    - "Ask targeted completion questions instead of marking the case ready."
+calibration_notes:
+  - "Needs human review because the decisive premise evidence is incomplete."
+  - "Confidence ranges are low because evidence support is partial."
+diagnosis_quality_gate:
+  readiness: needs-human-review
+  case_candidate_signal:
+    eligible: false
+    reasons:
+      - "The issue is plausible."
+    blockers:
+      - "Original evidence is missing."
+  eval_candidate_signal:
+    eligible: false
+    reasons:
+      - "The fixture names a likely premise-validation dimension."
+    blockers:
+      - "Expected mode and decisive evidence are incomplete."
+    eval_dimensions:
       - premise_validation
-      - evidence
-    question: "What source or conversation excerpt shows whether the premise was verified?"
-    why_it_matters: "It separates an unsupported premise from a premise the user or Agent already validated."
-  - id: Q002
-    targets:
-      - expected_vs_actual_mode
-    question: "Did the user ask for verification, advice, or execution?"
-    why_it_matters: "The expected response mode changes the diagnosis."
-privacy:
-  redaction_status: clear
-  detected_flags: []
-  requires_user_review: false
-generated_candidates:
-  - type: eval
-    artifact_type: eval_sample
-    status: preview_only
-    requires_user_confirmation: true
-    auto_apply: false
-    writes_local_asset: false
-    gate:
-      status: needs_review
-      requires_user_confirmation: true
-      adoption_allowed_without_confirmation: false
-safety:
-  read_only_fixture: true
-  generates_real_fixture: false
-  writes_feedback: false
-  default_llm_as_judge: false
-  claims_semantic_evaluator: false
-  auto_adopts_candidate: false
+      - response_mode_mismatch
+  auto_apply_allowed: false
+  requires_confirmation: true
