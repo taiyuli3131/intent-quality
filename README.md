@@ -10,7 +10,7 @@ This project is not a hosted eval platform, a prompt collection, or a generic an
 
 ## Current Status
 
-`intent-quality` is in the v0.3 local candidate stage, with v0.4 P0 diagnosis-quality calibration work underway. The core local loop is usable for project-local diagnosis, fixtures, regression checks, playbook learning, public candidate gating, pending profile-memory suggestions, local eval review metadata, experimental/internal adapter export drafts, and read-only diagnosis calibration fixtures.
+`intent-quality` is in the v0.3 local candidate stage, with v0.4 P0 diagnosis-quality calibration maintained as an unpublished development-line candidate baseline. This is not a complete v0.4 release. The core local loop is usable for project-local diagnosis, fixtures, regression checks, playbook learning, public candidate gating, pending profile-memory suggestions, local eval review metadata, experimental/internal adapter export drafts, and read-only diagnosis calibration fixtures.
 
 The current package version is `0.3.0`.
 
@@ -253,13 +253,13 @@ v0.3 does not add a hosted platform, dashboard, automatic public upload, automat
 
 See [docs/release-v0.3.md](docs/release-v0.3.md) for release notes and [docs/release-v0.2.md](docs/release-v0.2.md) for the v0.2 reliability baseline.
 
-## v0.4 P0 Diagnosis Calibration
+## v0.4 P0 Diagnosis Calibration Candidate
 
-v0.4 P0 adds a synthetic, read-only calibration fixture layer for diagnosis quality.
+v0.4 P0 is an unpublished development-line candidate baseline for a synthetic, read-only calibration fixture layer for diagnosis quality. It is not a complete v0.4 release and does not change the current package version from `0.3.0`.
 
 It checks whether diagnosis-like examples are `ready`, `needs_review`, or `blocked` based on schema coverage, readiness, confidence range, finding structure, premise status, completion questions, authorization scope, privacy/redaction blockers, and candidate-gate blockers.
 
-The beta check also prints a diagnosis calibration gate report with fixture counts, status counts, coverage, eligibility, reasons, blockers, `requires_confirmation`, and `auto_apply_allowed: false`. The structural comparison runner only checks fields, dimensions, statuses, `confidence_range`, and gate shape; it is not a semantic evaluator and does not use LLM-as-judge.
+The candidate acceptance criteria require the check to print a diagnosis calibration gate report with fixture counts, status counts, coverage, eligibility, reasons, blockers, `requires_confirmation`, and `auto_apply_allowed: false`. The structural comparison runner only checks fields, dimensions, statuses, `confidence_range`, and gate shape; it is not a semantic evaluator, does not use LLM-as-judge, does not automatically fill sample gaps, and does not promote candidates.
 
 The calibration layer does not generate or approve real fixtures, write feedback, auto-adopt candidates, add LLM-as-judge scoring, or mutate fixture, candidate, memory, profile, rule, dataset, casebook, rubric, contribution, public, suggestion, or accepted local state.
 
