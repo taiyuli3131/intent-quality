@@ -108,6 +108,8 @@ v0.4 P0 scope:
 
 - synthetic read-only diagnosis calibration fixtures;
 - fixture schema checks for readiness, required fields, finding coverage, confidence ranges, premise status, completion questions, authorization scope, privacy/redaction blockers, and candidate-gate blockers;
+- coverage matrix checks for context pollution, response-mode mismatch, intent preservation, missing completion questions, and forbidden inference/confidence overstatement;
+- structural comparison of fields, dimensions, statuses, confidence ranges, and gate shape without semantic evaluation or LLM-as-judge;
 - `check` integration with protected snapshots to confirm no protected local assets are modified.
 
 v0.4 P0 remains out of scope:
@@ -118,6 +120,7 @@ v0.4 P0 remains out of scope:
 - hosted dashboards or platform behavior;
 - default LLM-as-judge scoring;
 - complete semantic evaluation claims;
+- real fixture adoption into public examples;
 - automatic profile, rule, dataset, casebook, rubric, contribution, public state, suggestion, candidate, or accepted-asset mutation.
 
 ## 3. Diagnose And Eval
@@ -192,6 +195,8 @@ Manual inputs can produce useful structural analysis, but conclusions must be co
 - which 2-4 questions would improve accuracy most.
 
 Diagnosis calibration fixtures are separate from real diagnosis reports. They are synthetic check inputs used to verify whether diagnosis-quality gates classify examples as `ready`, `needs_review`, or `blocked`.
+
+Public diagnosis calibration fixtures must be synthetic, redacted, or derived. Real samples remain private local material by default and should not be committed unless separately generalized and explicitly approved.
 
 ## 6. Public Library And Trust Model
 

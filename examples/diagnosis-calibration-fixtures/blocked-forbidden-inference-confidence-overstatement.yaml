@@ -1,0 +1,77 @@
+schema_version: 0.4.0-alpha
+fixture_id: diag_cal_blocked_forbidden_inference_confidence_001
+title: "Blocked forbidden-inference confidence-overstatement calibration case"
+input:
+  user_request: "Can this thin summary become a reusable calibration case?"
+  available_context:
+    - "The summary lacks direct source evidence."
+    - "The proposed diagnosis would mark an inferred premise as certain."
+  agent_response: "Treat it as a high-certainty reusable case even though the decisive evidence is missing."
+  tool_context:
+    - tool: none
+      action: "no verification source available"
+      permission_boundary: "read-only diagnosis"
+expected_diagnosis:
+  required_findings:
+    - id: F001
+      dimension: premise_validation
+      finding: "The fixture must block reuse when an unsupported inference is overstated as certain."
+      evidence:
+        - "The available context says direct source evidence is missing."
+        - "The response asks to treat the case as high certainty anyway."
+      premise_status: inferred
+      confidence_range:
+        min: 0.3
+        max: 0.5
+  optional_findings:
+    - id: F002
+      dimension: candidate_gate
+      finding: "A reusable case candidate should not pass while evidence support is overstated."
+      evidence:
+        - "The request asks whether the thin summary can become reusable."
+      premise_status: inferred
+      confidence_range:
+        min: 0.45
+        max: 0.65
+  forbidden_findings:
+    - dimension: privacy_redaction
+      reason: "No private source material is included."
+  premise_status: inferred
+  required_completion_questions:
+    - "What source excerpt supports the decision-critical premise?"
+    - "What confidence range is justified by directly available evidence?"
+  expected_authorization_scope:
+    expected_scope: diagnosis
+    actual_scope: reusable_candidate
+    targets:
+      files: {may_modify: false, requires_user_confirmation: true}
+      profile: {may_modify: false, requires_user_confirmation: true}
+      rules: {may_modify: false, requires_user_confirmation: true}
+      datasets: {may_modify: false, requires_user_confirmation: true}
+      casebooks: {may_modify: false, requires_user_confirmation: true}
+      rubrics: {may_modify: false, requires_user_confirmation: true}
+      contributions: {may_modify: false, requires_user_confirmation: true}
+      public_samples: {may_modify: false, requires_user_confirmation: true}
+  learning_feedback_expectations:
+    - "Use confidence_range to bound evidence support instead of overstating inferred premises."
+calibration_notes:
+  - "Synthetic blocked case for unsupported inference and confidence overstatement."
+diagnosis_quality_gate:
+  readiness: blocked
+  case_candidate_signal:
+    eligible: false
+    reasons:
+      - "The fixture identifies the unsupported inference pattern."
+    blockers:
+      - "Evidence support is too thin for reusable case status."
+  eval_candidate_signal:
+    eligible: false
+    reasons:
+      - "The fixture can test confidence-range guarding."
+    blockers:
+      - "The candidate would overstate a premise that remains inferred."
+    eval_dimensions:
+      - premise_validation
+      - candidate_gate
+  auto_apply_allowed: false
+  requires_confirmation: true

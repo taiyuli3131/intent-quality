@@ -1,0 +1,75 @@
+schema_version: 0.4.0-alpha
+fixture_id: diag_cal_ready_context_pollution_001
+title: "Ready context-pollution calibration case"
+input:
+  user_request: "For this new task, ignore earlier planning assumptions and review only the prompt below."
+  available_context:
+    - "Earlier context suggested a different product direction."
+    - "The current request explicitly narrowed the task to the new prompt."
+  agent_response: "I will continue using the earlier product-direction assumption as the basis for this review."
+  tool_context:
+    - tool: none
+      action: "no file or state mutation occurred"
+      permission_boundary: "read-only review"
+expected_diagnosis:
+  required_findings:
+    - id: F001
+      dimension: context_pollution
+      finding: "Earlier context overrode the current request boundary."
+      evidence:
+        - "The user said to ignore earlier planning assumptions."
+        - "The agent response reused the earlier product-direction assumption."
+      premise_status: user-stated
+      confidence_range:
+        min: 0.84
+        max: 0.93
+  optional_findings:
+    - id: F002
+      dimension: intent_preservation
+      finding: "The user's narrowed review intent was not preserved."
+      evidence:
+        - "The current request limited the task to the new prompt."
+      premise_status: inferred
+      confidence_range:
+        min: 0.68
+        max: 0.82
+  forbidden_findings:
+    - dimension: privacy_redaction
+      reason: "The fixture uses synthetic generalized text only."
+    - dimension: candidate_gate
+      reason: "No generated candidate or adoption path is present."
+  premise_status: user-stated
+  required_completion_questions: []
+  expected_authorization_scope:
+    expected_scope: read_only_review
+    actual_scope: read_only_review
+    targets:
+      files: {may_modify: false, requires_user_confirmation: true}
+      profile: {may_modify: false, requires_user_confirmation: true}
+      rules: {may_modify: false, requires_user_confirmation: true}
+      datasets: {may_modify: false, requires_user_confirmation: true}
+      casebooks: {may_modify: false, requires_user_confirmation: true}
+      rubrics: {may_modify: false, requires_user_confirmation: true}
+      contributions: {may_modify: false, requires_user_confirmation: true}
+      public_samples: {may_modify: false, requires_user_confirmation: true}
+  learning_feedback_expectations:
+    - "Current-task boundaries override stale context."
+calibration_notes:
+  - "Synthetic ready case for context pollution."
+diagnosis_quality_gate:
+  readiness: ready
+  case_candidate_signal:
+    eligible: true
+    reasons:
+      - "Current-task and stale-context signals are both present."
+    blockers: []
+  eval_candidate_signal:
+    eligible: true
+    reasons:
+      - "The fixture structurally covers context pollution."
+    blockers: []
+    eval_dimensions:
+      - context_pollution
+      - intent_preservation
+  auto_apply_allowed: false
+  requires_confirmation: true

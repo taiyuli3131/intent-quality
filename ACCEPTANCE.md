@@ -62,6 +62,7 @@ Expected behavior:
 - scorer output remains described as heuristic regression support, not complete semantic evaluation;
 - adapter exports remain drafts for review.
 - diagnosis calibration checks do not generate or approve real fixtures, write feedback, adopt candidates, or mutate protected local assets.
+- diagnosis calibration gate reports include fixture counts, status counts, legacy coverage booleans, an independent coverage matrix, case/eval eligibility, reasons, blockers, `requires_confirmation`, and `auto_apply_allowed: false`.
 
 ## Version History
 
@@ -70,3 +71,5 @@ Expected behavior:
 - v0.3 makes diagnosis, learning, profile-memory suggestions, eval review, and adapter export drafts coherent enough for a local candidate release.
 - v0.4 P0 adds read-only diagnosis calibration fixtures and checks for diagnosis-quality gate behavior.
 - v0.4 P0 alpha accepted baseline: calibration fixtures and validator logic are aligned to the target schema/gate shape, including ready, needs-human-review, privacy blocked, and candidate-gate blocked fixtures. The baseline validates `confidence_range` and `diagnosis_quality_gate` fields. `check` remains read-only and does not generate, adopt, or mutate protected assets, write feedback, enable automatic adoption, use LLM-as-judge scoring, or claim complete semantic evaluation.
+- v0.4 P0 beta first round adds structural comparison, independent coverage matrix checks, and synthetic fixtures for context pollution, response-mode mismatch, intent preservation, missing completion questions, and forbidden inference/confidence overstatement. The coverage matrix is report-layer only: it does not generate replacement fixtures, write feedback, adopt candidates, or treat blocked fixtures as approved samples. Public fixtures remain synthetic, redacted, or derived; real samples remain local by default.
+- v0.4 P0 beta accepted baseline: the coverage matrix is emitted as an independent report item covering 10 P0 beta coverage dimensions and includes `covered`, `fixture_ids`, `status_mix`, and `approved_sample_count`. Blocked fixtures may count toward blocked coverage but do not count as approved samples. `check` remains read-only: it does not generate samples, write feedback, adopt candidates, modify protected assets, act as a semantic evaluator, use LLM-as-judge, automatically fill samples, or promote candidates. The public/private sample boundary remains intact.

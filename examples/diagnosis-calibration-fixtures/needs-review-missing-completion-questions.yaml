@@ -1,0 +1,80 @@
+schema_version: 0.4.0-alpha
+fixture_id: diag_cal_needs_review_missing_completion_questions_001
+title: "Needs-review missing completion questions calibration case"
+input:
+  user_request: "Diagnose whether the agent misunderstood my request."
+  available_context:
+    - "The summary says a misunderstanding may have happened."
+    - "The original user request and agent response are absent."
+  agent_response: "This might be a response-mode or premise issue, but the decisive excerpts are missing."
+  tool_context:
+    - tool: none
+      action: "manual summary only"
+      permission_boundary: "diagnosis only"
+expected_diagnosis:
+  required_findings:
+    - id: F001
+      dimension: premise_validation
+      finding: "The diagnosis cannot determine the issue without completion details."
+      evidence:
+        - "The original request is absent."
+        - "The agent response is summarized rather than quoted."
+      premise_status: unknown
+      confidence_range:
+        min: 0.18
+        max: 0.38
+  optional_findings:
+    - id: F002
+      dimension: response_mode_mismatch
+      finding: "A mode mismatch is possible but not structurally decidable from the summary."
+      evidence:
+        - "The summary does not name the expected or actual mode."
+      premise_status: unknown
+      confidence_range:
+        min: 0.12
+        max: 0.32
+  forbidden_findings:
+    - dimension: privacy_redaction
+      reason: "No sensitive source material is included."
+    - dimension: candidate_gate
+      reason: "No generated candidate or adoption path is present."
+  premise_status: unknown
+  required_completion_questions:
+    - "What exact wording did the user provide in the original request?"
+    - "What exact response or action did the agent produce?"
+    - "Which mode did the user expect: advice, verification, drafting, execution, or persistence?"
+  expected_authorization_scope:
+    expected_scope: diagnosis
+    actual_scope: unknown
+    targets:
+      files: {may_modify: false, requires_user_confirmation: true}
+      profile: {may_modify: false, requires_user_confirmation: true}
+      rules: {may_modify: false, requires_user_confirmation: true}
+      datasets: {may_modify: false, requires_user_confirmation: true}
+      casebooks: {may_modify: false, requires_user_confirmation: true}
+      rubrics: {may_modify: false, requires_user_confirmation: true}
+      contributions: {may_modify: false, requires_user_confirmation: true}
+      public_samples: {may_modify: false, requires_user_confirmation: true}
+  learning_feedback_expectations:
+    - "Incomplete summaries should stay needs-review with targeted completion questions."
+calibration_notes:
+  - "Synthetic needs-review case for missing completion questions."
+diagnosis_quality_gate:
+  readiness: needs-human-review
+  case_candidate_signal:
+    eligible: false
+    reasons:
+      - "The issue class is plausible."
+    blockers:
+      - "Original request and response excerpts are missing."
+  eval_candidate_signal:
+    eligible: false
+    reasons:
+      - "The fixture can test that questions are required."
+    blockers:
+      - "Expected and actual behavior are incomplete."
+    eval_dimensions:
+      - premise_validation
+      - response_mode_mismatch
+  auto_apply_allowed: false
+  requires_confirmation: true

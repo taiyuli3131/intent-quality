@@ -51,7 +51,10 @@ v0.4 P0 adds a diagnosis calibration check layer:
 ```text
 synthetic diagnosis calibration fixtures
 -> validate readiness, evidence, confidence, premise status, authorization scope, privacy, and candidate gates
+-> compare fixture structure across fields, dimensions, status, confidence ranges, and gate shape
+-> check beta coverage for context pollution, response-mode mismatch, intent preservation, completion questions, and forbidden confidence overstatement
 -> classify as ready, needs_review, or blocked
+-> print a diagnosis calibration gate report
 -> confirm protected local assets were not modified
 ```
 
@@ -89,6 +92,8 @@ Diagnosis should produce:
 Manual diagnosis should be allowed, but incomplete input must produce lower-confidence findings and targeted completion questions.
 
 Diagnosis calibration fixtures are not diagnosis outputs. They are synthetic read-only examples used by `check` to verify that diagnosis-quality gates handle ready, incomplete, privacy-blocked, and candidate-gate-blocked cases.
+
+Public calibration fixtures must be synthetic, redacted, or derived. Real samples remain private local material by default and are not committed unless separately generalized and explicitly approved. The calibration runner compares structure only; it does not perform semantic evaluation or use LLM-as-judge.
 
 ## 3. Eval
 

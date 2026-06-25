@@ -13,3 +13,18 @@ fixtures:
   - fixture: blocked-candidate-gate-confirmation-bypass.yaml
     expected_status: blocked
     focus: candidate_gate
+  - fixture: ready-context-pollution.yaml
+    expected_status: ready
+    focus: context_pollution
+  - fixture: ready-response-mode-mismatch.yaml
+    expected_status: ready
+    focus: response_mode_mismatch
+  - fixture: ready-intent-preservation.yaml
+    expected_status: ready
+    focus: intent_preservation
+  - fixture: needs-review-missing-completion-questions.yaml
+    expected_status: needs_review
+    focus: premise_validation
+  - fixture: blocked-forbidden-inference-confidence-overstatement.yaml
+    expected_status: blocked
+    focus: premise_validation

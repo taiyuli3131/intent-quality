@@ -22,7 +22,10 @@ from .schemas import (
 from .eval import evaluate_dataset
 from .diagnose import build_diagnosis
 from .diagnosis_calibration import (
+    build_calibration_gate_report,
     evaluate_calibration_fixture,
+    run_structural_comparison,
+    validate_coverage_matrix,
     validate_calibration_manifest,
 )
 from .render import render_diagnosis_markdown
@@ -76,6 +79,11 @@ EXPECTED_DIAGNOSIS_CALIBRATION_FIXTURES = {
     "needs-review-premise-evidence-incomplete.yaml": "needs_review",
     "blocked-privacy-redaction.yaml": "blocked",
     "blocked-candidate-gate-confirmation-bypass.yaml": "blocked",
+    "ready-context-pollution.yaml": "ready",
+    "ready-response-mode-mismatch.yaml": "ready",
+    "ready-intent-preservation.yaml": "ready",
+    "needs-review-missing-completion-questions.yaml": "needs_review",
+    "blocked-forbidden-inference-confidence-overstatement.yaml": "blocked",
 }
 
 
@@ -362,6 +370,7 @@ def check_diagnosis_calibration_fixtures(root: Path) -> list[str]:
     } or EXPECTED_DIAGNOSIS_CALIBRATION_FIXTURES
 
     before = protected_snapshot(root)
+    records: list[dict[str, Any]] = []
     for filename, expected_status in expected.items():
         path = fixture_dir / filename
         if not path.exists():
@@ -373,12 +382,48 @@ def check_diagnosis_calibration_fixtures(root: Path) -> list[str]:
             continue
         actual_status, fixture_errors = evaluate_calibration_fixture(fixture, str(path))
         errors.extend(fixture_errors)
+        manifest_item = next(
+            (item for item in manifest.get("fixtures", []) if isinstance(item, dict) and item.get("fixture") == filename),
+            {"fixture": filename, "expected_status": expected_status},
+        )
+        errors.extend(run_structural_comparison(fixture, manifest_item, str(path)))
+        records.append(
+            {
+                "filename": filename,
+                "expected_status": expected_status,
+                "actual_status": actual_status,
+                "fixture": fixture,
+            }
+        )
         if actual_status != expected_status:
             errors.append(f"{path}: expected calibration status {expected_status}, got {actual_status}")
+    report = build_calibration_gate_report(records)
+    errors.extend(validate_coverage_matrix(report))
+    print_diagnosis_calibration_gate_report(report)
     after = protected_snapshot(root)
     if before != after:
         errors.append("diagnosis calibration fixture check modified protected local assets")
     return errors
+
+
+def print_diagnosis_calibration_gate_report(report: dict[str, Any]) -> None:
+    print("diagnosis calibration gate report:")
+    print(f"- fixture_count: {report.get('fixture_count')}")
+    print(f"- status_counts: {report.get('status_counts')}")
+    print(f"- coverage: {report.get('coverage')}")
+    print("- coverage_matrix:")
+    for dimension, detail in report.get("coverage_matrix", {}).items():
+        print(
+            f"  - {dimension}: covered={str(detail.get('covered')).lower()}, "
+            f"fixture_ids={detail.get('fixture_ids')}, "
+            f"status_mix={detail.get('status_mix')}, "
+            f"approved_sample_count={detail.get('approved_sample_count')}"
+        )
+    print(f"- eligible: {report.get('eligible')}")
+    print(f"- reasons: {report.get('reasons')}")
+    print(f"- blockers: {report.get('blockers')}")
+    print(f"- requires_confirmation: {report.get('requires_confirmation')}")
+    print(f"- auto_apply_allowed: {str(report.get('auto_apply_allowed')).lower()}")
 
 
 def check_adapter_export_fixtures(root: Path) -> list[str]:

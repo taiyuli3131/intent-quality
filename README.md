@@ -259,7 +259,11 @@ v0.4 P0 adds a synthetic, read-only calibration fixture layer for diagnosis qual
 
 It checks whether diagnosis-like examples are `ready`, `needs_review`, or `blocked` based on schema coverage, readiness, confidence range, finding structure, premise status, completion questions, authorization scope, privacy/redaction blockers, and candidate-gate blockers.
 
+The beta check also prints a diagnosis calibration gate report with fixture counts, status counts, coverage, eligibility, reasons, blockers, `requires_confirmation`, and `auto_apply_allowed: false`. The structural comparison runner only checks fields, dimensions, statuses, `confidence_range`, and gate shape; it is not a semantic evaluator and does not use LLM-as-judge.
+
 The calibration layer does not generate or approve real fixtures, write feedback, auto-adopt candidates, add LLM-as-judge scoring, or mutate fixture, candidate, memory, profile, rule, dataset, casebook, rubric, contribution, public, suggestion, or accepted local state.
+
+Public calibration fixtures must be synthetic, redacted, or derived. Real collaboration samples are private local material by default and should stay uncommitted unless separately generalized and explicitly approved.
 
 See [docs/v0.4-diagnosis-quality.md](docs/v0.4-diagnosis-quality.md).
 
